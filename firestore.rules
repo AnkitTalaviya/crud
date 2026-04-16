@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownedByCurrentUser(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function allowedInventoryKeys(data) {
+      return data.keys().hasOnly([
+        'name',
+        'sku',
+        'description',
+        'category',
+        'quantity',
+        'unitPrice',
+        'reorderLevel',
+        'location',
+        'supplier',
+        'tags',
+        'status',
+        'userId',
+        'createdAt',
+        'updatedAt',
+      ]);
+    }
+
+    function validInventoryStatus(status) {
+      return status in ['in_stock', 'low_stock', 'out_of_stock'];
+    }
+
+    function validInventoryDocument(data) {
+      return allowedInventoryKeys(data)
+        && data.name is string
+        && data.name.size() >= 2
+        && data.sku is string
+        && data.sku.size() >= 3
+        && data.description is string
+        && data.category is string
+        && data.category.size() >= 2
+        && data.quantity is number
+        && data.quantity >= 0
+        && data.unitPrice is number
+        && data.unitPrice >= 0
+        && data.reorderLevel is number
+        && data.reorderLevel >= 0
+        && data.location is string
+        && data.location.size() >= 2
+        && data.supplier is string
+        && data.supplier.size() >= 2
+        && data.tags is list
+        && validInventoryStatus(data.status)
+        && data.userId is string;
+    }
+
+    match /inventoryItems/{itemId} {
+      allow read: if ownedByCurrentUser(resource.data.userId);
+
+      allow create: if ownedByCurrentUser(request.resource.data.userId)
+        && validInventoryDocument(request.resource.data);
+
+      allow update: if ownedByCurrentUser(resource.data.userId)
+        && ownedByCurrentUser(request.resource.data.userId)
+        && validInventoryDocument(request.resource.data);
+
+      allow delete: if ownedByCurrentUser(resource.data.userId);
+    }
+  }
+}
+
