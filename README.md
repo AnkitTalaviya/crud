@@ -39,7 +39,7 @@ Firebase was chosen because it is the easiest free-tier backend for a beginner-d
 
 1. Firebase Auth and Firestore are very fast to wire into a Vite frontend without managing SQL schemas, migrations, or a separate API layer.
 2. Firestore includes an always-free quota for small apps, including 1 GiB storage, 50k reads/day, 20k writes/day, and 20k deletes/day according to the official quotas page.
-3. Firebase Authentication’s Spark plan supports email/password auth with generous no-cost usage for small portfolio projects.
+3. Firebase Authentication's Spark plan supports email/password auth with generous no-cost usage for small portfolio projects.
 4. Supabase is excellent, but its free projects are more constrained for hobby deployments because free organizations are limited to 2 projects and inactive projects can be paused.
 
 Official references used for this decision:
@@ -80,7 +80,7 @@ src/
 - Empty, loading, and error states
 - JSON export
 - Theme toggle with `localStorage` persistence and system fallback
-- Subtle 3D auth/landing background
+- Subtle 3D auth and workspace background motion
 
 ## Data Model
 
@@ -112,7 +112,7 @@ Each inventory item includes:
 
 - Firebase Authentication handles email/password signup, login, logout, and session persistence.
 - Firestore stores inventory items in the `inventoryItems` collection.
-- Every item is written with the authenticated user’s `uid` as `userId`.
+- Every item is written with the authenticated user's `uid` as `userId`.
 - The UI only queries records for the current user.
 - Firestore security rules in [firestore.rules](./firestore.rules) enforce user-specific access at the database level.
 
@@ -122,7 +122,8 @@ Each inventory item includes:
 - The preference is saved in `localStorage` under `stockpilot-theme`.
 - The app falls back to `prefers-color-scheme` when the user selects `system`.
 - The `AuthScene` component uses React Three Fiber and Drei to render a lightweight animated background with floating geometry and sparkles.
-- Reduced motion users get a static atmospheric version instead of a moving 3D scene.
+- The authenticated workspace uses subtle Three.js motion as an ambient background layer instead of embedding 3D directly inside cards.
+- Reduced motion users get a static atmospheric version instead of a moving scene.
 
 ## Local Setup
 
@@ -199,7 +200,7 @@ The app is intended to create records through the UI. A quick starter set you ca
 npm run build
 ```
 
-The output is generated in `dist/`.
+The production build is created in `dist/`.
 
 ## Deployment Options
 
