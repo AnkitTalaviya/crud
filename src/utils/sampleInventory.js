@@ -9,7 +9,10 @@ export const STARTER_INVENTORY_ITEMS = [
     reorderLevel: 8,
     location: 'Berlin warehouse A1',
     supplier: 'Northern Tools GmbH',
-    tags: 'premium, field, restock-q2',
+    tags: 'field, scheduled, restock-q2',
+    orderedOn: '2026-04-08',
+    expectedOn: '2026-04-19',
+    receivedOn: null,
   },
   {
     name: 'Packaging Tape 48mm',
@@ -22,6 +25,9 @@ export const STARTER_INVENTORY_ITEMS = [
     location: 'Packing station B2',
     supplier: 'WrapFlow Supply',
     tags: 'shipping, low-stock, consumable',
+    orderedOn: '2026-04-06',
+    expectedOn: '2026-04-12',
+    receivedOn: '2026-04-11',
   },
   {
     name: 'Barcode Scanner Dock',
@@ -34,6 +40,8 @@ export const STARTER_INVENTORY_ITEMS = [
     location: 'Ops shelf C4',
     supplier: 'ScanGrid Systems',
     tags: 'hardware, out-of-stock, accessories',
+    orderedOn: '2026-04-15',
+    expectedOn: '2026-04-24',
+    receivedOn: null,
   },
 ];
-

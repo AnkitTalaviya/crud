@@ -23,6 +23,9 @@ function mapSnapshotToItem(snapshot) {
   return {
     id: snapshot.id,
     ...data,
+    orderedOn: data.orderedOn ?? null,
+    expectedOn: data.expectedOn ?? null,
+    receivedOn: data.receivedOn ?? null,
     createdAt: data.createdAt?.toDate?.() ?? null,
     updatedAt: data.updatedAt?.toDate?.() ?? null,
   };

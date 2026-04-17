@@ -22,6 +22,9 @@ service cloud.firestore {
         'location',
         'supplier',
         'tags',
+        'orderedOn',
+        'expectedOn',
+        'receivedOn',
         'status',
         'userId',
         'createdAt',
@@ -53,6 +56,9 @@ service cloud.firestore {
         && data.supplier is string
         && data.supplier.size() >= 2
         && data.tags is list
+        && (data.orderedOn == null || data.orderedOn is string)
+        && (data.expectedOn == null || data.expectedOn is string)
+        && (data.receivedOn == null || data.receivedOn is string)
         && validInventoryStatus(data.status)
         && data.userId is string;
     }
@@ -71,4 +77,3 @@ service cloud.firestore {
     }
   }
 }
-

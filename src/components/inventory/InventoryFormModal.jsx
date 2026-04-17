@@ -23,6 +23,9 @@ function getInitialValues(item) {
     location: item.location,
     supplier: item.supplier,
     tags: (item.tags ?? []).join(', '),
+    orderedOn: item.orderedOn ?? '',
+    expectedOn: item.expectedOn ?? '',
+    receivedOn: item.receivedOn ?? '',
   };
 }
 
@@ -75,6 +78,30 @@ export function InventoryFormModal({ open, item, isSaving, onClose, onSubmit }) 
           <TextInput label="Supplier" placeholder="Northern Tools GmbH" error={errors.supplier?.message} {...register('supplier')} />
         </div>
 
+        <div className="grid gap-5 md:grid-cols-3">
+          <TextInput
+            label="Ordered on"
+            type="date"
+            description="Optional"
+            error={errors.orderedOn?.message}
+            {...register('orderedOn')}
+          />
+          <TextInput
+            label="Expected receipt"
+            type="date"
+            description="Optional"
+            error={errors.expectedOn?.message}
+            {...register('expectedOn')}
+          />
+          <TextInput
+            label="Received on"
+            type="date"
+            description="Optional"
+            error={errors.receivedOn?.message}
+            {...register('receivedOn')}
+          />
+        </div>
+
         <TextAreaField
           label="Description"
           placeholder="What is this item for, and what should teammates know before restocking it?"
@@ -91,7 +118,8 @@ export function InventoryFormModal({ open, item, isSaving, onClose, onSubmit }) 
         />
 
         <div className="rounded-3xl bg-slate-50 p-4 text-sm leading-6 text-slate-500 dark:bg-slate-900/60 dark:text-slate-400">
-          Stock status is calculated automatically from quantity and reorder level, so your dashboard stays consistent.
+          Stock status is calculated automatically from quantity and reorder level. The calendar uses ordered, expected, and received dates when
+          you add them.
         </div>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

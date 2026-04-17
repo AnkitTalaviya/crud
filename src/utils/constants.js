@@ -1,10 +1,11 @@
-import { Boxes, LayoutDashboard, Settings, ShieldCheck, TrendingUp } from 'lucide-react';
+import { Boxes, CalendarDays, LayoutDashboard, Settings, ShieldCheck, TrendingUp } from 'lucide-react';
 
 export const APP_NAME = 'StockPilot';
 
 export const NAV_LINKS = [
   { label: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
   { label: 'Inventory', path: '/app/inventory', icon: Boxes },
+  { label: 'Calendar', path: '/app/calendar', icon: CalendarDays },
   { label: 'Settings', path: '/app/settings', icon: Settings },
 ];
 
@@ -40,6 +41,9 @@ export const INVENTORY_DEFAULT_VALUES = {
   location: '',
   supplier: '',
   tags: '',
+  orderedOn: '',
+  expectedOn: '',
+  receivedOn: '',
 };
 
 export const DASHBOARD_FILTER_PRESETS = [

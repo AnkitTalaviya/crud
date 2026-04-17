@@ -18,6 +18,10 @@ const pageMeta = {
     title: 'Inventory records',
     description: 'Create, update, and review each SKU with search and filter controls.',
   },
+  '/app/calendar': {
+    title: 'Inventory calendar',
+    description: 'Track order dates, expected receipts, and received inventory on one schedule.',
+  },
   '/app/settings': {
     title: 'Account settings',
     description: 'Review account details, theme preferences, and backend status.',
@@ -118,7 +122,7 @@ export function DashboardLayout() {
         )}
 
         <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-0">
-          <header className="sticky top-0 z-20 border-b border-[color:rgb(var(--border))] bg-[rgb(var(--background))]/90 backdrop-blur-xl">
+          <header className="fixed left-0 right-0 top-0 z-20 border-b border-[color:rgb(var(--border))] bg-[rgb(var(--background))]/90 backdrop-blur-xl lg:left-[max(290px,calc((100vw-1020px)/2))] lg:right-auto lg:w-[min(calc(100vw-290px),1310px)]">
             <div className="flex items-center gap-3 px-3 py-4 sm:gap-4 sm:px-6 lg:px-8">
               <button
                 type="button"
@@ -138,6 +142,8 @@ export function DashboardLayout() {
               <UserMenu />
             </div>
           </header>
+
+          <div aria-hidden="true" className="h-[88px] shrink-0 sm:h-[104px]" />
 
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
             <Outlet />

@@ -57,6 +57,22 @@ export function InventoryPage() {
   }, [searchParams]);
 
   useEffect(() => {
+    const editId = searchParams.get('edit');
+
+    if (!editId) {
+      return;
+    }
+
+    const matchedItem = items.find((item) => item.id === editId);
+
+    if (matchedItem) {
+      setSelectedItem(null);
+      setEditingItem(matchedItem);
+      setIsFormOpen(true);
+    }
+  }, [items, searchParams]);
+
+  useEffect(() => {
     if (focusedItem) {
       setSelectedItem(focusedItem);
     }
@@ -65,9 +81,10 @@ export function InventoryPage() {
   const closeForm = () => {
     setIsFormOpen(false);
     setEditingItem(null);
-    if (searchParams.get('new')) {
+    if (searchParams.get('new') || searchParams.get('edit')) {
       const nextSearchParams = new URLSearchParams(searchParams);
       nextSearchParams.delete('new');
+      nextSearchParams.delete('edit');
       setSearchParams(nextSearchParams, { replace: true });
     }
   };

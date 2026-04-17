@@ -102,5 +102,58 @@
   .text-balance {
     text-wrap: balance;
   }
-}
 
+  .inventory-calendar .fc .fc-toolbar {
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .inventory-calendar .fc .fc-toolbar-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .inventory-calendar .fc .fc-button {
+    border: 1px solid rgb(var(--border-strong));
+    background: rgb(var(--background-panel));
+    color: rgb(var(--foreground));
+    border-radius: 1rem;
+    box-shadow: none;
+    padding: 0.7rem 0.95rem;
+    text-transform: capitalize;
+  }
+
+  .inventory-calendar .fc .fc-button:hover,
+  .inventory-calendar .fc .fc-button:focus,
+  .inventory-calendar .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .inventory-calendar .fc .fc-button-primary:not(:disabled):active {
+    background: rgba(var(--accent), 0.12);
+    color: rgb(var(--foreground));
+    border-color: rgba(var(--accent), 0.2);
+    box-shadow: none;
+  }
+
+  .inventory-calendar .fc .fc-scrollgrid,
+  .inventory-calendar .fc .fc-theme-standard td,
+  .inventory-calendar .fc .fc-theme-standard th,
+  .inventory-calendar .fc .fc-list {
+    border-color: rgb(var(--border));
+  }
+
+  .inventory-calendar .fc .fc-daygrid-day.fc-day-today,
+  .inventory-calendar .fc .fc-list-day-cushion {
+    background: rgba(var(--accent), 0.08);
+  }
+
+  .inventory-calendar .fc .fc-event {
+    border: none;
+    border-radius: 1rem;
+    padding: 0.1rem 0.35rem;
+  }
+
+  .inventory-calendar .fc .fc-list-event:hover td {
+    background: rgba(var(--accent), 0.08);
+  }
+}

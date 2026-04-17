@@ -9,6 +9,12 @@ const compactNumberFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 });
 
+const dateOnlyFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
 const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
@@ -16,6 +22,24 @@ const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
   hour: 'numeric',
   minute: '2-digit',
 });
+
+function coerceDateValue(value) {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsedDate = new Date(`${value}T00:00:00`);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+  }
+
+  const parsedDate = new Date(value);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
 
 export function formatCurrency(value) {
   return currencyFormatter.format(value ?? 0);
@@ -26,20 +50,27 @@ export function formatCompactNumber(value) {
 }
 
 export function formatDateTime(value) {
-  if (!value) {
+  const date = coerceDateValue(value);
+
+  if (!date) {
     return 'Just now';
   }
 
-  const date = value instanceof Date ? value : new Date(value);
   return dateTimeFormatter.format(date);
 }
 
+export function formatDateOnly(value, fallback = 'Not scheduled') {
+  const date = coerceDateValue(value);
+  return date ? dateOnlyFormatter.format(date) : fallback;
+}
+
 export function formatRelativeTime(value) {
-  if (!value) {
+  const date = coerceDateValue(value);
+
+  if (!date) {
     return 'just now';
   }
 
-  const date = value instanceof Date ? value : new Date(value);
   const diffMs = Date.now() - date.getTime();
   const diffMinutes = Math.round(diffMs / 60000);
 
@@ -69,4 +100,3 @@ export function formatRelativeTime(value) {
 export function formatTags(tags = []) {
   return tags.filter(Boolean).join(', ');
 }
-

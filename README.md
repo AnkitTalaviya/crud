@@ -10,6 +10,7 @@ StockPilot helps individual operators and small teams manage stock with:
 - a protected dashboard with summary cards and attention queues
 - full CRUD for inventory items
 - search, filtering, sorting, and detail views
+- order, expected receipt, and received date tracking
 - light and dark themes with persisted preference
 - responsive layouts for mobile, tablet, and desktop
 - motion and background rendering with Framer Motion and React Three Fiber
@@ -75,6 +76,7 @@ src/
 - Protected app routes
 - Inventory dashboard analytics
 - Inventory create, edit, delete, and detail flows
+- Delivery calendar for ordered, expected, and received inventory milestones
 - Delete confirmation modal
 - Toast feedback
 - Empty, loading, and error states
@@ -98,6 +100,9 @@ Each inventory item includes:
 - `supplier`
 - `tags`
 - `status`
+- `orderedOn`
+- `expectedOn`
+- `receivedOn`
 - `createdAt`
 - `updatedAt`
 - `userId`

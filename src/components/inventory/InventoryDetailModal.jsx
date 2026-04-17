@@ -1,8 +1,8 @@
-import { CalendarClock, MapPin, PackageSearch, Tag } from 'lucide-react';
+import { CalendarClock, CheckCircle2, MapPin, PackageSearch, Tag, Truck } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Badge } from '@/components/common/Badge';
 import { Modal } from '@/components/common/Modal';
-import { formatCurrency, formatDateTime, formatTags } from '@/utils/formatters';
+import { formatCurrency, formatDateOnly, formatDateTime, formatTags } from '@/utils/formatters';
 import { getInventoryValue, getStatusLabel, getStatusTone } from '@/utils/inventory';
 
 function DetailRow({ icon: Icon, label, value }) {
@@ -40,6 +40,12 @@ export function InventoryDetailModal({ item, open, onClose, onEdit }) {
             label="Updated"
             value={`${formatDateTime(item.updatedAt || item.createdAt)} / created ${formatDateTime(item.createdAt)}`}
           />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <DetailRow icon={CalendarClock} label="Ordered on" value={formatDateOnly(item.orderedOn)} />
+          <DetailRow icon={Truck} label="Expected receipt" value={formatDateOnly(item.expectedOn)} />
+          <DetailRow icon={CheckCircle2} label="Received on" value={formatDateOnly(item.receivedOn)} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">

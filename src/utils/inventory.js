@@ -10,6 +10,12 @@ export function resolveStockStatus(quantity, reorderLevel) {
   return 'in_stock';
 }
 
+export const INVENTORY_SCHEDULE_MILESTONES = [
+  { key: 'orderedOn', label: 'Ordered', tone: 'accent', color: '#0369a1' },
+  { key: 'expectedOn', label: 'Expected', tone: 'warning', color: '#b45309' },
+  { key: 'receivedOn', label: 'Received', tone: 'success', color: '#15803d' },
+];
+
 export function getStatusLabel(status) {
   switch (status) {
     case 'out_of_stock':
@@ -39,6 +45,11 @@ export function parseTags(tagString) {
     .filter(Boolean);
 }
 
+function normalizeInventoryDate(value) {
+  const trimmedValue = value?.trim?.() ?? value;
+  return trimmedValue ? trimmedValue : null;
+}
+
 export function formatInventoryPayload(values) {
   return {
     name: values.name.trim(),
@@ -51,12 +62,46 @@ export function formatInventoryPayload(values) {
     location: values.location.trim(),
     supplier: values.supplier.trim(),
     tags: parseTags(values.tags ?? ''),
+    orderedOn: normalizeInventoryDate(values.orderedOn),
+    expectedOn: normalizeInventoryDate(values.expectedOn),
+    receivedOn: normalizeInventoryDate(values.receivedOn),
     status: resolveStockStatus(Number(values.quantity), Number(values.reorderLevel)),
   };
 }
 
 export function getInventoryValue(item) {
   return (item.quantity ?? 0) * (item.unitPrice ?? 0);
+}
+
+export function getInventoryScheduleMilestones(item = {}) {
+  return INVENTORY_SCHEDULE_MILESTONES.filter((milestone) => Boolean(item[milestone.key])).map((milestone) => ({
+    ...milestone,
+    date: item[milestone.key],
+  }));
+}
+
+export function buildInventoryCalendarEvents(items = []) {
+  return items
+    .flatMap((item) =>
+      getInventoryScheduleMilestones(item).map((milestone) => ({
+        id: `${item.id ?? item.sku}-${milestone.key}`,
+        title: item.name,
+        start: milestone.date,
+        allDay: true,
+        backgroundColor: milestone.color,
+        borderColor: milestone.color,
+        textColor: '#ffffff',
+        extendedProps: {
+          itemId: item.id,
+          itemName: item.name,
+          milestoneKey: milestone.key,
+          milestoneLabel: milestone.label,
+          supplier: item.supplier,
+          sku: item.sku,
+        },
+      })),
+    )
+    .sort((left, right) => `${left.start}${left.extendedProps.milestoneKey}`.localeCompare(`${right.start}${right.extendedProps.milestoneKey}`));
 }
 
 export function buildInventoryMetrics(items = []) {
@@ -108,4 +153,3 @@ export function filterItems(items, filters) {
       }
     });
 }
-
