@@ -1,11 +1,4 @@
-import {
-  Boxes,
-  LayoutDashboard,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  TrendingUp,
-} from 'lucide-react';
+import { Boxes, LayoutDashboard, Settings, ShieldCheck, TrendingUp } from 'lucide-react';
 
 export const APP_NAME = 'StockPilot';
 
@@ -16,9 +9,9 @@ export const NAV_LINKS = [
 ];
 
 export const HERO_METRICS = [
-  { label: 'Faster stock checks', value: '3.2x', icon: TrendingUp },
-  { label: 'Shared confidence', value: '98%', icon: ShieldCheck },
-  { label: 'Operator delight', value: '24/7', icon: Sparkles },
+  { label: 'Core actions', value: 'CRUD', icon: Boxes },
+  { label: 'User access', value: 'Protected', icon: ShieldCheck },
+  { label: 'Stock status', value: 'Live', icon: TrendingUp },
 ];
 
 export const INVENTORY_SORT_OPTIONS = [
@@ -54,4 +47,3 @@ export const DASHBOARD_FILTER_PRESETS = [
   { label: 'Needs attention', value: 'attention' },
   { label: 'Recently updated', value: 'recent' },
 ];
-

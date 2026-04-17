@@ -17,8 +17,8 @@ const settingCards = [
     icon: ShieldCheck,
   },
   {
-    title: 'Product-grade feedback',
-    description: 'Action toasts, loading states, confirmation dialogs, and focused empty states are built in.',
+    title: 'Clear status feedback',
+    description: 'Loading states, confirmations, and alerts support day-to-day inventory actions.',
     icon: BellRing,
   },
 ];
@@ -51,7 +51,7 @@ export function SettingsPage() {
             <div className="rounded-3xl bg-slate-50 p-5 dark:bg-slate-900/60">
               <p className="text-sm text-slate-500 dark:text-slate-400">Backend stack</p>
               <p className="mt-2 text-xl font-semibold">Firebase Auth + Firestore</p>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Free-tier friendly and easy to deploy for portfolio apps.</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Supports secure sign-in and cloud-based inventory records.</p>
             </div>
           </div>
         </div>
@@ -59,9 +59,9 @@ export function SettingsPage() {
         <div className="surface-panel overflow-hidden p-6">
           <div className="mb-6 rounded-[28px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-fuchsia-400/10 p-5">
             <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Appearance preview</p>
-            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight">Theme controls with a subtle motion layer</h3>
+            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight">Theme controls and display preferences</h3>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
-              The interface stays flat and readable while Three.js remains in page-level ambient motion behind the workspace.
+              Choose the theme mode that best fits your working environment.
             </p>
           </div>
           <div className="flex items-center gap-3">

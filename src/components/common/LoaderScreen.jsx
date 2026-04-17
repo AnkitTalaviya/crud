@@ -11,10 +11,9 @@ export function LoaderScreen({ label = 'Loading...' }) {
             <Spinner className="h-6 w-6" />
           </div>
           <p className="font-medium">{label}</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Syncing your theme, session, and workspace state.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Checking your session and loading account data.</p>
         </div>
       </div>
     </div>
   );
 }
-

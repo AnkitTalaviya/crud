@@ -52,9 +52,9 @@ export function SignupPage() {
   return (
     <AuthLayout>
       <AuthFormShell
-        eyebrow="Start free"
-        title="Create your operator workspace"
-        description="Set up your secure account and start tracking inventory with a faster, cleaner workflow."
+        eyebrow="Get started"
+        title="Create your account"
+        description="Set up secure access to your inventory dashboard."
         footer={
           <>
             Already have an account?{' '}

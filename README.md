@@ -1,10 +1,10 @@
 # StockPilot
 
-StockPilot is a portfolio-quality inventory management app built with React, Vite, Tailwind CSS, Firebase Authentication, and Cloud Firestore. It focuses on clean CRUD flows, polished UX, protected routes, responsive dashboards, theme persistence, and tasteful Three.js motion.
+StockPilot is an inventory management app built with React, Vite, Tailwind CSS, Firebase Authentication, and Cloud Firestore. It provides authenticated CRUD workflows, responsive dashboards, theme persistence, and background scene rendering.
 
 ## Project Overview
 
-StockPilot helps individual operators and small teams track stock items with:
+StockPilot helps individual operators and small teams manage stock with:
 
 - secure sign up, login, logout, and persistent sessions
 - a protected dashboard with summary cards and attention queues
@@ -12,7 +12,7 @@ StockPilot helps individual operators and small teams track stock items with:
 - search, filtering, sorting, and detail views
 - light and dark themes with persisted preference
 - responsive layouts for mobile, tablet, and desktop
-- premium visual polish with Framer Motion and React Three Fiber
+- motion and background rendering with Framer Motion and React Three Fiber
 
 ## Chosen Stack And Why
 
@@ -35,12 +35,12 @@ StockPilot helps individual operators and small teams track stock items with:
 
 ### Why Firebase Over Supabase Here
 
-Firebase was chosen because it is the easiest free-tier backend for a beginner-deployable client-side CRUD app with auth:
+Firebase was chosen because it supports a client-side inventory app with authentication and document storage without a separate API layer:
 
 1. Firebase Auth and Firestore are very fast to wire into a Vite frontend without managing SQL schemas, migrations, or a separate API layer.
 2. Firestore includes an always-free quota for small apps, including 1 GiB storage, 50k reads/day, 20k writes/day, and 20k deletes/day according to the official quotas page.
-3. Firebase Authentication's Spark plan supports email/password auth with generous no-cost usage for small portfolio projects.
-4. Supabase is excellent, but its free projects are more constrained for hobby deployments because free organizations are limited to 2 projects and inactive projects can be paused.
+3. Firebase Authentication's Spark plan supports email/password auth for small deployments.
+4. Supabase is also a strong option, but this project was optimized around Firebase's frontend-first integration model.
 
 Official references used for this decision:
 
@@ -70,7 +70,7 @@ src/
 
 ## Features
 
-- Landing page with premium hero presentation
+- Landing page and authentication flow
 - Login and signup flows with validation and loading states
 - Protected app routes
 - Inventory dashboard analytics
@@ -80,7 +80,7 @@ src/
 - Empty, loading, and error states
 - JSON export
 - Theme toggle with `localStorage` persistence and system fallback
-- Subtle 3D auth and workspace background motion
+- Background scene effects for auth and app screens
 
 ## Data Model
 
@@ -116,14 +116,14 @@ Each inventory item includes:
 - The UI only queries records for the current user.
 - Firestore security rules in [firestore.rules](./firestore.rules) enforce user-specific access at the database level.
 
-## How Theme And Three.js Work
+## How Theme And Background Scenes Work
 
 - Theme state is managed in `ThemeContext`.
 - The preference is saved in `localStorage` under `stockpilot-theme`.
 - The app falls back to `prefers-color-scheme` when the user selects `system`.
-- The `AuthScene` component uses React Three Fiber and Drei to render a lightweight animated background with floating geometry and sparkles.
-- The authenticated workspace uses subtle Three.js motion as an ambient background layer instead of embedding 3D directly inside cards.
-- Reduced motion users get a static atmospheric version instead of a moving scene.
+- The `AuthScene` component uses React Three Fiber and Drei to render a lightweight background scene for the authentication flow.
+- The authenticated app uses a background scene behind the main application shell.
+- Reduced motion users receive a static fallback instead of animation.
 
 ## Local Setup
 

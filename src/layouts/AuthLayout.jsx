@@ -16,7 +16,7 @@ const highlights = [
   },
   {
     title: 'Secure by default',
-    description: 'Firebase authentication and user-scoped data rules keep each workspace isolated.',
+    description: 'Firebase authentication and security rules keep each account limited to its own records.',
     icon: ShieldCheck,
   },
 ];
@@ -31,9 +31,9 @@ export function AuthLayout({ children }) {
         <div className="flex flex-1 flex-col overflow-hidden rounded-[34px] border border-white/10 bg-slate-950/75 p-6 text-white shadow-panel backdrop-blur lg:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-200/80">StockPilot workspace</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-200/80">StockPilot</p>
               <h2 className="mt-3 max-w-xl font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-                Inventory operations that feel calm, fast, and under control.
+                Manage inventory with a clear and secure workflow.
               </h2>
             </div>
             <div className="hidden lg:block">
@@ -65,14 +65,14 @@ export function AuthLayout({ children }) {
 
           <div className="mt-auto hidden items-end justify-between gap-6 pt-10 lg:flex">
             <div className="max-w-md">
-              <p className="text-sm uppercase tracking-[0.24em] text-sky-200/70">Designed for growing operations</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-sky-200/70">Built for day-to-day operations</p>
               <p className="mt-3 text-sm leading-6 text-slate-200/80">
-                Built with a premium React experience, subtle Three.js motion, secure Firebase auth, and clean CRUD workflows that are simple to deploy.
+                Secure authentication, responsive layouts, and user-scoped inventory records support daily stock management.
               </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/10 px-5 py-4 text-right backdrop-blur-sm">
-              <p className="text-2xl font-bold">24h</p>
-              <p className="text-sm text-slate-200/75">to go from blank project to a branded workspace</p>
+              <p className="text-2xl font-bold">Scoped</p>
+              <p className="text-sm text-slate-200/75">Each account only accesses its own inventory records</p>
             </div>
           </div>
         </div>

@@ -108,12 +108,12 @@ export function DashboardPage() {
             <div className="space-y-4">
               <div className="rounded-[28px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-emerald-400/10 p-5">
                 <div className="max-w-xl space-y-3">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Realtime operating pulse</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Operational summary</p>
                   <h3 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-                    Watch stock health, value, and risk move in one place.
+                    Review stock health, value, and risk in one place.
                   </h3>
                   <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
-                    The dashboard keeps the content flat and readable while ambient Three.js motion now lives behind the full workspace.
+                    Use this view to monitor inventory coverage and identify items that need attention.
                   </p>
                 </div>
               </div>

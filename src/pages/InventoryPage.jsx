@@ -167,12 +167,12 @@ export function InventoryPage() {
           <div className="rounded-[30px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-emerald-400/10 p-5">
             <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
               <div className="space-y-3">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Inventory workspace</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Inventory records</p>
                 <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Browse, edit, and search stock records with a responsive control layer.
+                  Browse, update, and search stock records.
                 </h2>
                 <p className="max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-300">
-                  Filters stay compact on mobile, cards take over when the table drops away, and the background motion stays out of the way of the actual work.
+                  Use search and filters to review inventory by category, status, and recent updates.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">

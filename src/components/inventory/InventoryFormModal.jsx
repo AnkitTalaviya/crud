@@ -42,12 +42,12 @@ export function InventoryFormModal({ open, item, isSaving, onClose, onSubmit }) 
   }, [item, reset]);
 
   return (
-    <Modal
-      open={open}
-      title={item ? `Edit ${item.name}` : 'Create inventory item'}
-      description="Keep the record realistic with supplier, quantity, pricing, and reorder context."
-      onClose={onClose}
-    >
+      <Modal
+        open={open}
+        title={item ? `Edit ${item.name}` : 'Create inventory item'}
+        description="Enter supplier, quantity, pricing, and reorder details for this item."
+        onClose={onClose}
+      >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-5 md:grid-cols-2">
           <TextInput label="Item name" placeholder="Field service kit" error={errors.name?.message} {...register('name')} />
@@ -85,7 +85,7 @@ export function InventoryFormModal({ open, item, isSaving, onClose, onSubmit }) 
         <TextInput
           label="Tags"
           description="Comma separated"
-          placeholder="premium, hardware, restock-q2"
+          placeholder="hardware, reorder, q2"
           error={errors.tags?.message}
           {...register('tags')}
         />
@@ -106,4 +106,3 @@ export function InventoryFormModal({ open, item, isSaving, onClose, onSubmit }) 
     </Modal>
   );
 }
-

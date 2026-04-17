@@ -13,9 +13,9 @@ export function NotFoundPage() {
         <div className="mt-6 flex justify-center">
           <LogoMark />
         </div>
-        <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">That page drifted off the shelf.</h1>
+        <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">Page not found.</h1>
         <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-          The route you requested does not exist or may have been renamed while the workspace was being updated.
+          The page you requested does not exist or may have moved.
         </p>
         <div className="mt-8 flex justify-center">
           <Link to="/">

@@ -41,33 +41,32 @@ export function StarterInventoryPanel({ onCreate, onSeed, isSeeding }) {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-600 dark:text-sky-300">
               <Sparkles className="h-4 w-4" />
-              First-run workspace
+              Getting started
             </div>
             <div className="space-y-3">
               <h2 className="font-display text-4xl font-semibold tracking-tight text-balance">
-                The dashboard is empty because your inventory is still brand new.
+                No inventory records yet.
               </h2>
               <p className="max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
-                You can add your first item manually, or load a polished starter dataset to immediately explore the analytics, filters,
-                stock health alerts, and recent activity views.
+                Add your first item manually, or load sample inventory to review dashboard metrics, filters, alerts, and recent activity.
               </p>
             </div>
 
             <div className="rounded-[30px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-violet-400/10 p-5">
               <div className="max-w-lg space-y-3">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Interactive starter canvas</p>
-                <h3 className="font-display text-2xl font-semibold tracking-tight">A responsive workspace with ambient motion behind the scenes.</h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Sample dataset</p>
+                <h3 className="font-display text-2xl font-semibold tracking-tight">Load example records to preview the dashboard.</h3>
                 <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
-                  This keeps the empty state more expressive on desktop while still reading cleanly on tablets and phones.
+                  The starter items include a mix of healthy, low-stock, and out-of-stock examples for a realistic first review.
                 </p>
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               {[
-                { label: 'Starter records', value: `${STARTER_INVENTORY_ITEMS.length}`, icon: DatabaseZap },
-                { label: 'Low / out-of-stock examples', value: '2', icon: Wand2 },
-                { label: 'Ready-to-watch dashboard', value: 'Instant', icon: Boxes },
+                { label: 'Sample records', value: `${STARTER_INVENTORY_ITEMS.length}`, icon: DatabaseZap },
+                { label: 'Alert examples', value: '2', icon: Wand2 },
+                { label: 'Dashboard preview', value: 'Ready', icon: Boxes },
               ].map((metric) => {
                 const Icon = metric.icon;
                 return (

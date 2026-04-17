@@ -7,7 +7,7 @@ export function ProtectedRoute({ children }) {
   const location = useLocation();
 
   if (!authReady) {
-    return <LoaderScreen label="Restoring your workspace..." />;
+    return <LoaderScreen label="Loading your account..." />;
   }
 
   if (!isAuthenticated) {
@@ -16,4 +16,3 @@ export function ProtectedRoute({ children }) {
 
   return children;
 }
-

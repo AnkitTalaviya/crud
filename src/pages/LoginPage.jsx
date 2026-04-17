@@ -54,8 +54,8 @@ export function LoginPage() {
     <AuthLayout>
       <AuthFormShell
         eyebrow="Welcome back"
-        title="Log into your workspace"
-        description="Pick up where you left off with your secure inventory dashboard."
+        title="Sign in to your account"
+        description="Access your inventory dashboard and continue managing stock."
         footer={
           <>
             New here?{' '}

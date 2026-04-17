@@ -12,15 +12,15 @@ import { cn } from '@/utils/cn';
 const pageMeta = {
   '/app/dashboard': {
     title: 'Operations dashboard',
-    description: 'Watch stock health, recent movement, and value coverage at a glance.',
+    description: 'Review stock health, recent activity, and inventory value in one view.',
   },
   '/app/inventory': {
-    title: 'Inventory workspace',
-    description: 'Create, update, and review every SKU with filters built for real workflows.',
+    title: 'Inventory records',
+    description: 'Create, update, and review each SKU with search and filter controls.',
   },
   '/app/settings': {
-    title: 'Workspace settings',
-    description: 'Personalize your theme, review account details, and confirm backend readiness.',
+    title: 'Account settings',
+    description: 'Review account details, theme preferences, and backend status.',
   },
 };
 
@@ -87,9 +87,9 @@ export function DashboardLayout() {
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-black/10">
               <Sparkles className="h-5 w-5" />
             </div>
-            <h3 className="mt-4 font-display text-xl font-semibold tracking-tight">Keep your floor one step ahead</h3>
+            <h3 className="mt-4 font-display text-xl font-semibold tracking-tight">Add inventory quickly</h3>
             <p className="mt-2 text-sm leading-6 text-slate-900/75">
-              Move faster on replenishment, spot risk early, and keep the team aligned with one source of truth.
+              Create a new record and keep stock levels current from the main navigation.
             </p>
             <Button
               variant="secondary"
@@ -126,7 +126,7 @@ export function DashboardLayout() {
                 <Menu className="h-5 w-5" />
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Workspace</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">StockPilot</p>
                 <h1 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">{currentMeta.title}</h1>
                 <p className="mt-1 hidden text-sm text-slate-500 dark:text-slate-400 sm:block">{currentMeta.description}</p>
               </div>

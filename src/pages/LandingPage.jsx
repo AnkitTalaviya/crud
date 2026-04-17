@@ -14,13 +14,13 @@ const featureCards = [
     icon: CheckCircle2,
   },
   {
-    title: 'Fast CRUD with real analytics',
-    description: 'Track quantity, value, suppliers, locations, and stock health without spreadsheet drift.',
+    title: 'Inventory tracking and reporting',
+    description: 'Monitor quantity, value, suppliers, locations, and stock status in one place.',
     icon: LayoutDashboard,
   },
   {
-    title: 'Modern SaaS-grade experience',
-    description: 'Polished theming, motion, responsive layouts, confirmation flows, and thoughtful empty states.',
+    title: 'Responsive operations interface',
+    description: 'Use the same workflows across desktop, tablet, and mobile screens.',
     icon: WalletCards,
   },
 ];
@@ -57,14 +57,15 @@ export function LandingPage() {
               >
                 <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-600 dark:text-sky-300">
                   <Sparkles className="h-4 w-4" />
-                  Polished inventory CRUD with Firebase auth
+                  Inventory management with secure access
                 </span>
                 <div className="space-y-4">
                   <h1 className="max-w-3xl font-display text-5xl font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl">
-                    Keep stock visible, actionable, and beautifully organized.
+                    Keep inventory accurate, visible, and easy to manage.
                   </h1>
                   <p className="max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-                    StockPilot gives growing teams a premium, responsive inventory workspace with secure auth, analytics-rich dashboards, and fast create, update, search, and delete flows.
+                    StockPilot helps teams manage stock with secure authentication, clear dashboards, and streamlined create, update, search,
+                    and delete workflows.
                   </p>
                 </div>
               </motion.div>
@@ -72,13 +73,13 @@ export function LandingPage() {
               <div className="flex flex-wrap gap-4">
                 <Link to="/signup">
                   <Button size="lg">
-                    Create workspace
+                    Create account
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/login">
                   <Button size="lg" variant="secondary">
-                    Explore demo flow
+                    Sign in
                   </Button>
                 </Link>
               </div>
@@ -103,9 +104,9 @@ export function LandingPage() {
               <div className="surface-panel overflow-hidden p-6">
                 <div className="mb-6 rounded-[28px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-emerald-400/10 p-5">
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Interactive overview</p>
-                  <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">Inventory health in motion</h2>
+                  <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">Inventory health overview</h2>
                   <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                    Three.js now stays in the page background so the interface itself remains crisp, readable, and easier to scan.
+                    Review stocked coverage, low-stock items, and inventory value from a single summary.
                   </p>
                 </div>
                 <div className="flex items-center justify-between gap-4">
