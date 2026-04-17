@@ -42,7 +42,7 @@ export function DashboardLayout() {
       <div className="relative z-10 mx-auto flex min-h-screen max-w-[1600px]">
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col border-r border-[color:rgb(var(--border))] bg-[rgb(var(--background-panel))]/95 px-5 py-6 shadow-panel backdrop-blur-xl transition-transform duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-0 lg:h-screen lg:self-start lg:translate-x-0 lg:shadow-none',
+            'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-[color:rgb(var(--border))] bg-[rgb(var(--background-panel))]/95 px-5 py-6 shadow-panel backdrop-blur-xl transition-transform duration-200 lg:left-[max(0px,calc((100vw-1600px)/2))] lg:translate-x-0 lg:shadow-none',
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:pointer-events-auto',
           )}
         >
@@ -105,6 +105,8 @@ export function DashboardLayout() {
             <ThemeToggle compact />
           </div>
         </aside>
+
+        <div aria-hidden="true" className="hidden w-[290px] shrink-0 lg:block" />
 
         {isSidebarOpen && (
           <button
