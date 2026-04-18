@@ -1,181 +1,78 @@
-# StockPilot
+# StockPilot 📦
 
-StockPilot is an inventory operations app built with React, Vite, Tailwind CSS, Firebase Authentication, and Cloud Firestore. It covers inventory records, purchase-order tracking, supplier management, audit history, low-stock alerts, CSV import/export, and role-aware access controls.
+Welcome to **StockPilot** - a modern inventory operations app for small teams.
 
-## Project Overview
+It helps you track stock, purchase orders, suppliers, alerts, and team access in one place.
 
-StockPilot helps individual operators and small teams manage stock with:
+## Why It Feels Useful ✨
 
-- secure sign up, login, logout, and persistent sessions
-- a protected dashboard with summary cards, attention queues, reorder suggestions, and recent stock movement activity
-- full CRUD for inventory items with purchase-order context
-- search, filtering, sorting, and detail views
-- ordered, expected receipt, and received date tracking
-- purchase-order workflow with PO numbers, quantity on order, and ordered / partial / received / cancelled states
-- supplier management with contacts, lead times, and linked inventory records
-- stock movement logging for receive, issue, and adjust actions
-- audit history for create, edit, delete, import, and stock transactions
-- low-stock, overdue-delivery, and upcoming-receipt notifications
-- CSV import and export plus JSON export
-- role-aware admin / manager / viewer access
-- light and dark themes with persisted preference
-- responsive layouts for mobile, tablet, and desktop
-- motion and background rendering with Framer Motion and React Three Fiber
+- Simple sign up and login
+- Clean dashboard with live inventory insights
+- Track purchase orders and receiving dates
+- Supplier directory with lead times
+- Activity history (audit log)
+- Notification center for low stock and overdue receipts
+- Team roles: admin, manager, viewer
+- CSV import/export + JSON export
+- Light and dark mode
 
-## Chosen Stack And Why
+## What You Can Do 🧩
+
+### Inventory
+- Create, update, delete items
+- Receive, issue, and adjust stock
+- Track on-hand vs on-order quantity
+- Track PO status: none, ordered, partial, received, cancelled
+
+### Suppliers
+- Add supplier contacts and lead times
+- Link suppliers to inventory items
+
+### Operations
+- See alerts for low stock and delayed deliveries
+- Use calendar for ordered/expected/received dates
+- Keep complete transaction history
+
+### Team & Access
+- Invite users to a workspace
+- Approve/reject access requests
+- Manage roles and account status
+
+## Tech Stack 🛠️
 
 ### Frontend
-
 - React 19 + Vite
 - React Router
 - Tailwind CSS
 - TanStack Query
 - React Hook Form + Zod
 - Framer Motion
-- Three.js via React Three Fiber and Drei
-- Lucide React
+- React Three Fiber + Drei
 
 ### Backend
-
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Hosting config included
+- Firebase Hosting (optional deploy path)
 
-### Why Firebase Over Supabase Here
+## Quick Start 🚀
 
-Firebase was chosen because it supports a client-side inventory app with authentication and document storage without a separate API layer:
-
-1. Firebase Auth and Firestore are very fast to wire into a Vite frontend without managing SQL schemas, migrations, or a separate API layer.
-2. Firestore includes an always-free quota for small apps, including 1 GiB storage, 50k reads/day, 20k writes/day, and 20k deletes/day according to the official quotas page.
-3. Firebase Authentication's Spark plan supports email/password auth for small deployments.
-4. Supabase is also a strong option, but this project was optimized around Firebase's frontend-first integration model.
-
-Official references used for this decision:
-
-- Firestore quotas: https://firebase.google.com/docs/firestore/quotas
-- Firebase Authentication limits: https://firebase.google.com/docs/auth/limits
-- Supabase Auth docs: https://supabase.com/docs/guides/auth
-- Supabase pricing: https://supabase.com/pricing
-
-## Folder Structure
-
-```text
-src/
-  components/
-    auth/
-    common/
-    dashboard/
-    inventory/
-  context/
-  hooks/
-  layouts/
-  lib/
-  pages/
-  routes/
-  services/
-  utils/
-```
-
-## Features
-
-- Landing page and authentication flow
-- Login and signup flows with validation and loading states
-- Protected app routes
-- Inventory dashboard analytics
-- Inventory create, edit, delete, and detail flows
-- Purchase order workflow with PO numbers, quantity on order, and order statuses
-- Receive, issue, and adjust stock transaction flows
-- Supplier directory with lead times and contacts
-- Audit history for inventory activity
-- In-app operational notifications
-- Delivery calendar for ordered, expected, and received inventory milestones
-- CSV and JSON export plus CSV import
-- Delete confirmation modal
-- Toast feedback
-- Empty, loading, and error states
-- Role-aware admin, manager, and viewer access
-- Theme toggle with `localStorage` persistence and system fallback
-- Background scene effects for auth and app screens
-
-## Data Model
-
-Each inventory item includes:
-
-- `id`
-- `name`
-- `sku`
-- `description`
-- `category`
-- `quantity`
-- `unitPrice`
-- `reorderLevel`
-- `location`
-- `supplierId`
-- `supplier`
-- `purchaseOrderNumber`
-- `quantityOnOrder`
-- `orderStatus`
-- `tags`
-- `status`
-- `orderedOn`
-- `expectedOn`
-- `receivedOn`
-- `createdAt`
-- `updatedAt`
-- `userId`
-
-`status` is calculated from `quantity` and `reorderLevel`:
-
-- `in_stock`
-- `low_stock`
-- `out_of_stock`
-
-Additional collections:
-
-- `suppliers`
-- `inventoryTransactions`
-- `userProfiles`
-
-## How Auth And Database Work
-
-- Firebase Authentication handles email/password signup, login, logout, and session persistence.
-- Firestore stores inventory items in the `inventoryItems` collection.
-- Suppliers are stored in `suppliers`.
-- Audit history is stored in `inventoryTransactions`.
-- Role and reminder preferences are stored in `userProfiles`.
-- Every document is written with the authenticated user's `uid` as `userId`.
-- The UI only queries records for the current user.
-- Firestore security rules in [firestore.rules](./firestore.rules) enforce user-specific access at the database level.
-
-## How Theme And Background Scenes Work
-
-- Theme state is managed in `ThemeContext`.
-- The preference is saved in `localStorage` under `stockpilot-theme`.
-- The app falls back to `prefers-color-scheme` when the user selects `system`.
-- The `AuthScene` component uses React Three Fiber and Drei to render a lightweight background scene for the authentication flow.
-- The authenticated app uses a background scene behind the main application shell.
-- Reduced motion users receive a static fallback instead of animation.
-
-## Local Setup
-
-### 1. Install dependencies
+### 1. Install
 
 ```bash
 npm install
 ```
 
-### 2. Create a Firebase project
+### 2. Configure Firebase
 
-1. Go to Firebase Console.
-2. Create a new project.
-3. Add a Web app to the project.
-4. Copy the Firebase config into a local `.env` file based on `.env.example`.
-5. In Authentication, enable the `Email/Password` provider.
-6. In Firestore Database, create a database.
+In Firebase Console:
+1. Create project
+2. Add web app
+3. Enable Email/Password auth
+4. Create Firestore database
 
 ### 3. Add environment variables
 
-Create `.env` from `.env.example`:
+Create `.env` (based on `.env.example`):
 
 ```bash
 VITE_FIREBASE_API_KEY=...
@@ -186,15 +83,13 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
 ```
 
-### 4. Start the app
+### 4. Run app
 
 ```bash
 npm run dev
 ```
 
-### 5. Apply Firestore rules
-
-Install the Firebase CLI if you do not already have it:
+### 5. Deploy Firestore rules
 
 ```bash
 npm install -g firebase-tools
@@ -203,64 +98,89 @@ firebase use --add
 firebase deploy --only firestore:rules
 ```
 
-## Troubleshooting
+## Login Info 🔐
 
-### `Firebase: auth/configuration-not-found`
+### Default ID / Password
+- Default testing admin account:
+	- Email: `test@test.com`
+	- Password: `test@test`
+- You can still create your own account from the Signup screen.
 
-If login or signup shows `Firebase: auth/configuration-not-found`, the most common cause is Firebase Authentication not being enabled for the project.
+### Placeholders in UI
+- Email placeholder: `test@test.com`
+- Password placeholder: `test@test`
 
-Check these items in order:
+## What To Expect On First Use 👀
 
-1. Firebase Console -> Authentication -> click `Get started` if Authentication has not been initialized yet.
-2. Firebase Console -> Authentication -> Sign-in method -> enable `Email/Password`.
-3. Firebase Console -> Project settings -> Your apps -> confirm the web app config matches your local `.env`.
-4. Restart the Vite dev server after any `.env` change.
-5. If you are testing on a deployed domain, add that domain under Authentication -> Settings -> Authorized domains.
+When you sign up:
+- If you choose **admin** and keep workspace blank, the app bootstraps a new workspace for you.
+- If you choose an existing workspace/role, your request may require approval.
 
-## Sample Data Seeding
+Inside app:
+- Empty workspace shows starter panel
+- You can load demo data from UI for quick exploration
+- Dashboard and notifications become more useful as data grows
 
-The app is intended to create records through the UI. A quick starter set you can add manually:
-
-1. `Field Service Kit`, SKU `KIT-204`, category `Field gear`, quantity `18`, reorder level `8`
-2. `Packaging Tape 48mm`, SKU `PKG-019`, category `Packing`, quantity `6`, reorder level `10`
-3. `Barcode Scanner Dock`, SKU `SCAN-112`, category `Hardware`, quantity `0`, reorder level `3`
-
-## Build For Production
+## Useful Commands 📋
 
 ```bash
-npm run build
+npm run dev      # start local dev server
+npm run lint     # lint code
+npm run test     # run unit tests
+npm run build    # production build
+npm run preview  # preview production build
 ```
 
-The production build is created in `dist/`.
+## Deployment 🌐
 
-## Deployment Options
-
-### Option 1: Firebase Hosting
+### Firebase Hosting
 
 ```bash
 npm run build
 firebase deploy --only hosting,firestore:rules
 ```
 
-Before deploying hosting, connect your Firebase project:
+### Vercel / Netlify
+- Connect repo
+- Add all `VITE_FIREBASE_*` variables
+- Build command: `npm run build`
+- Output dir: `dist`
 
-```bash
-firebase login
-firebase use --add
-```
+## Security Notes 🛡️
 
-### Option 2: Vercel Or Netlify
+- Firestore rules enforce workspace-level access
+- Auth and profile states are role-aware
+- Environment variables are used for Firebase config
+- Avoid committing private credentials in `.env`
 
-1. Push the project to GitHub.
-2. Import it into Vercel or Netlify.
-3. Add the same `VITE_FIREBASE_*` environment variables in the deployment dashboard.
-4. Use:
-   - Build command: `npm run build`
-   - Output directory: `dist`
+## Upgrade Ideas 🔮
 
-## Production Notes
+If you want to improve this project further:
 
-- Firebase config is kept in environment variables.
-- No secrets are hardcoded.
-- Database access is protected at both the UI and Firestore rules layers.
-- Search, filtering, and sorting are handled client-side after user-scoped fetches to keep setup simple and avoid composite index friction for first-time deploys.
+- Add E2E tests (Playwright/Cypress)
+- Add dashboard charts for trends and forecast
+- Add barcode scanning support
+- Add multi-language support
+- Add background jobs/Cloud Functions for reminders
+- Add soft-delete + restore workflows
+- Add stronger CI pipeline (lint + test + build + preview)
+- Migrate to latest major versions in controlled steps (Vite, Firebase, Tailwind, Zod)
+
+## Troubleshooting Quick Tips 🧯
+
+### Auth errors
+- Verify Email/Password provider is enabled
+- Check `.env` values
+- Restart dev server after env changes
+
+### Firestore permission errors
+- Confirm rules are deployed
+- Confirm user is in correct workspace and role
+
+### Firestore not enabled / DB missing
+- Enable Firestore API
+- Create default Firestore database
+
+---
+
+Built with care for practical inventory operations ❤️

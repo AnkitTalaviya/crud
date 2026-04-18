@@ -24,8 +24,8 @@ export function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'test@test.com',
+      password: 'test@test',
     },
   });
 
@@ -66,8 +66,8 @@ export function LoginPage() {
         }
       >
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <TextInput label="Email address" type="email" placeholder="ops@company.com" error={errors.email?.message} {...register('email')} />
-          <TextInput label="Password" type="password" placeholder="Enter your password" error={errors.password?.message} {...register('password')} />
+          <TextInput label="Email address" type="email" placeholder="test@test.com" error={errors.email?.message} {...register('email')} />
+          <TextInput label="Password" type="password" placeholder="test@test" error={errors.password?.message} {...register('password')} />
           {setupIssue && (
             <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-700 dark:text-amber-200">
               <div className="flex items-start gap-3">
