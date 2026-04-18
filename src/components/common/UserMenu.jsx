@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, LogOut, UserCircle2 } from 'lucide-react';
+import { ChevronDown, LogOut, UserCircle2, Users2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/common/Button';
@@ -19,16 +19,16 @@ function getInitials(name = '') {
 export function UserMenu() {
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { user } = useAuth();
+  const { user, userProfile, role, accountStatus, canManageRoles } = useAuth();
   const navigate = useNavigate();
 
   const profile = useMemo(
     () => ({
-      name: user?.displayName || 'Warehouse Lead',
-      email: user?.email || '',
-      initials: getInitials(user?.displayName || user?.email || 'SP'),
+      name: userProfile?.displayName || user?.displayName || 'Workspace member',
+      email: userProfile?.email || user?.email || '',
+      initials: getInitials(userProfile?.displayName || user?.displayName || userProfile?.email || user?.email || 'SP'),
     }),
-    [user?.displayName, user?.email],
+    [user?.displayName, user?.email, userProfile?.displayName, userProfile?.email],
   );
 
   const handleLogout = async () => {
@@ -67,8 +67,17 @@ export function UserMenu() {
           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-900/60">
             <p className="text-sm font-semibold">{profile.name}</p>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{profile.email}</p>
+            <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+              {role || 'member'} / {accountStatus || 'active'}
+            </p>
           </div>
           <div className="mt-3 grid gap-2">
+            {canManageRoles && (
+              <Button variant="ghost" className="justify-start" onClick={() => navigate('/app/team')}>
+                <Users2 className="h-4 w-4" />
+                Team access
+              </Button>
+            )}
             <Button variant="ghost" className="justify-start" onClick={() => navigate('/app/settings')}>
               <UserCircle2 className="h-4 w-4" />
               Profile & settings
@@ -83,4 +92,3 @@ export function UserMenu() {
     </div>
   );
 }
-

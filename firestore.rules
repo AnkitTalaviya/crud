@@ -10,7 +10,187 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == userId;
     }
 
-    function allowedInventoryKeys(data) {
+    function currentUserEmail() {
+      return signedIn() && request.auth.token.email is string
+        ? request.auth.token.email
+        : '__no_email__';
+    }
+
+    function currentUserProfileExists() {
+      return signedIn() && exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid));
+    }
+
+    function currentUserProfile() {
+      return currentUserProfileExists()
+        ? get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data
+        : null;
+    }
+
+    function currentWorkspaceId() {
+      return currentUserProfileExists()
+        ? currentUserProfile().workspaceId
+        : null;
+    }
+
+    function currentUserRole() {
+      return currentUserProfileExists()
+        ? currentUserProfile().role
+        : null;
+    }
+
+    function currentUserStatus() {
+      return currentUserProfileExists()
+        ? currentUserProfile().status
+        : 'inactive';
+    }
+
+    function currentUserIsActive() {
+      return currentUserStatus() == 'active';
+    }
+
+    function belongsToCurrentWorkspace(workspaceId) {
+      return signedIn()
+        && currentUserIsActive()
+        && workspaceId is string
+        && currentWorkspaceId() == workspaceId;
+    }
+
+    function canManageWorkspace() {
+      return currentUserIsActive() && currentUserRole() in ['admin', 'manager'];
+    }
+
+    function canManageRoles() {
+      return currentUserIsActive() && currentUserRole() == 'admin';
+    }
+
+    function workspaceOwnerUserId(workspaceId) {
+      return exists(/databases/$(database)/documents/workspaces/$(workspaceId))
+        ? get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerUserId
+        : '__no_owner__';
+    }
+
+    function isWorkspaceOwner(userId, workspaceId) {
+      return workspaceOwnerUserId(workspaceId) == userId;
+    }
+
+    function validReminderPreferences(preferences) {
+      return preferences is map
+        && preferences.keys().hasOnly(['inAppLowStock', 'inAppOverdue', 'inAppUpcoming'])
+        && preferences.inAppLowStock is bool
+        && preferences.inAppOverdue is bool
+        && preferences.inAppUpcoming is bool;
+    }
+
+    function validUserProfileDocument(data) {
+      return data.keys().hasOnly([
+        'userId',
+        'displayName',
+        'email',
+        'workspaceId',
+        'role',
+        'status',
+        'reminderPreferences',
+        'createdAt',
+        'updatedAt',
+      ])
+        && data.userId is string
+        && data.displayName is string
+        && data.email is string
+        && data.workspaceId is string
+        && data.role in ['admin', 'manager', 'viewer']
+        && data.status in ['active', 'inactive']
+        && validReminderPreferences(data.reminderPreferences);
+    }
+
+    function validWorkspaceDocument(data) {
+      return data.keys().hasOnly(['name', 'ownerUserId', 'createdAt', 'updatedAt'])
+        && data.name is string
+        && data.name.size() >= 2
+        && data.ownerUserId is string;
+    }
+
+    function validInviteDocument(data) {
+      return data.keys().hasOnly([
+        'email',
+        'workspaceId',
+        'role',
+        'status',
+        'invitedByUserId',
+        'acceptedByUserId',
+        'acceptedAt',
+        'createdAt',
+        'updatedAt',
+      ])
+        && data.email is string
+        && data.workspaceId is string
+        && data.role in ['admin', 'manager', 'viewer']
+        && data.status in ['pending', 'accepted']
+        && data.invitedByUserId is string
+        && (data.acceptedByUserId == null || data.acceptedByUserId is string);
+    }
+
+    function validAccessRequestDocument(data) {
+      return data.keys().hasOnly([
+        'userId',
+        'fullName',
+        'email',
+        'workspaceId',
+        'requestedRole',
+        'status',
+        'reviewedByUserId',
+        'reviewNote',
+        'submittedAt',
+        'reviewedAt',
+        'updatedAt',
+      ])
+        && data.userId is string
+        && data.fullName is string
+        && data.fullName.size() >= 2
+        && data.email is string
+        && data.workspaceId is string
+        && data.workspaceId.size() >= 1
+        && data.requestedRole in ['admin', 'manager', 'viewer']
+        && data.status in ['pending', 'approved', 'rejected']
+        && (data.reviewedByUserId == null || data.reviewedByUserId is string)
+        && data.reviewNote is string;
+    }
+
+    function validSupplierDocument(data) {
+      return data.keys().hasOnly([
+        'name',
+        'contactName',
+        'email',
+        'phone',
+        'leadTimeDays',
+        'address',
+        'notes',
+        'userId',
+        'workspaceId',
+        'createdAt',
+        'updatedAt',
+      ])
+        && data.name is string
+        && data.name.size() >= 2
+        && data.contactName is string
+        && data.email is string
+        && data.phone is string
+        && data.leadTimeDays is number
+        && data.leadTimeDays >= 0
+        && data.address is string
+        && data.notes is string
+        && data.userId is string
+        && data.workspaceId is string;
+    }
+
+    function validInventoryStatus(status) {
+      return status in ['in_stock', 'low_stock', 'out_of_stock'];
+    }
+
+    function validOrderStatus(status) {
+      return status in ['none', 'ordered', 'partial', 'received', 'cancelled'];
+    }
+
+    function validInventoryDocument(data) {
       return data.keys().hasOnly([
         'name',
         'sku',
@@ -20,24 +200,21 @@ service cloud.firestore {
         'unitPrice',
         'reorderLevel',
         'location',
+        'supplierId',
         'supplier',
+        'purchaseOrderNumber',
+        'quantityOnOrder',
+        'orderStatus',
         'tags',
         'orderedOn',
         'expectedOn',
         'receivedOn',
         'status',
         'userId',
+        'workspaceId',
         'createdAt',
         'updatedAt',
-      ]);
-    }
-
-    function validInventoryStatus(status) {
-      return status in ['in_stock', 'low_stock', 'out_of_stock'];
-    }
-
-    function validInventoryDocument(data) {
-      return allowedInventoryKeys(data)
+      ])
         && data.name is string
         && data.name.size() >= 2
         && data.sku is string
@@ -53,27 +230,253 @@ service cloud.firestore {
         && data.reorderLevel >= 0
         && data.location is string
         && data.location.size() >= 2
+        && (data.supplierId == null || data.supplierId is string)
         && data.supplier is string
         && data.supplier.size() >= 2
+        && (data.purchaseOrderNumber == null || data.purchaseOrderNumber is string)
+        && data.quantityOnOrder is number
+        && data.quantityOnOrder >= 0
+        && validOrderStatus(data.orderStatus)
         && data.tags is list
         && (data.orderedOn == null || data.orderedOn is string)
         && (data.expectedOn == null || data.expectedOn is string)
         && (data.receivedOn == null || data.receivedOn is string)
         && validInventoryStatus(data.status)
-        && data.userId is string;
+        && data.userId is string
+        && data.workspaceId is string;
+    }
+
+    function validTransactionDocument(data) {
+      return data.keys().hasOnly([
+        'type',
+        'inventoryItemId',
+        'inventoryItemName',
+        'sku',
+        'quantityDelta',
+        'previousQuantity',
+        'nextQuantity',
+        'purchaseOrderNumber',
+        'note',
+        'effectiveOn',
+        'userId',
+        'workspaceId',
+        'actorName',
+        'actorEmail',
+        'createdAt',
+      ])
+        && data.type in ['create', 'update', 'receive', 'issue', 'adjust', 'delete', 'csv_import', 'seed']
+        && data.inventoryItemId is string
+        && data.inventoryItemName is string
+        && data.sku is string
+        && data.quantityDelta is number
+        && data.previousQuantity is number
+        && data.nextQuantity is number
+        && (data.purchaseOrderNumber == null || data.purchaseOrderNumber is string)
+        && data.note is string
+        && (data.effectiveOn == null || data.effectiveOn is string)
+        && data.userId is string
+        && data.workspaceId is string
+        && data.actorName is string
+        && data.actorEmail is string;
+    }
+
+    function selfManagedProfileFieldsAreLocked() {
+      return request.resource.data.userId == resource.data.userId
+        && request.resource.data.workspaceId == (resource.data.workspaceId is string ? resource.data.workspaceId : resource.data.userId)
+        && request.resource.data.role == (resource.data.role in ['admin', 'manager', 'viewer'] ? resource.data.role : 'admin')
+        && request.resource.data.status == (resource.data.status in ['active', 'inactive'] ? resource.data.status : 'active')
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    function canBootstrapOwnWorkspace(profileData) {
+      return profileData.userId == request.auth.uid
+        && profileData.workspaceId == request.auth.uid
+        && profileData.role == 'admin'
+        && profileData.status == 'active';
+    }
+
+    function canApproveRequestedRole(requestedRole) {
+      return currentUserIsActive()
+        && (
+          currentUserRole() == 'admin'
+          || (currentUserRole() == 'manager' && requestedRole == 'viewer')
+        );
+    }
+
+    function canJoinWorkspaceFromInvite(profileData) {
+      return currentUserEmail() != '__no_email__'
+        && exists(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail()))
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.status == 'pending'
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.email == currentUserEmail()
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.workspaceId == profileData.workspaceId
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.role == profileData.role
+        && profileData.userId == request.auth.uid
+        && profileData.status == 'active';
+    }
+
+    function canCreateProfileFromApprovedRequest(profileData) {
+      return exists(/databases/$(database)/documents/accessRequests/$(request.auth.uid))
+        && get(/databases/$(database)/documents/accessRequests/$(request.auth.uid)).data.status == 'approved'
+        && get(/databases/$(database)/documents/accessRequests/$(request.auth.uid)).data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/accessRequests/$(request.auth.uid)).data.email == profileData.email
+        && get(/databases/$(database)/documents/accessRequests/$(request.auth.uid)).data.workspaceId == profileData.workspaceId
+        && get(/databases/$(database)/documents/accessRequests/$(request.auth.uid)).data.requestedRole == profileData.role
+        && exists(/databases/$(database)/documents/workspaces/$(profileData.workspaceId))
+        && profileData.userId == request.auth.uid
+        && profileData.status == 'active';
+    }
+
+    function hasPendingInviteForWorkspace(workspaceId) {
+      return currentUserEmail() != '__no_email__'
+        && exists(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail()))
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.status == 'pending'
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.email == currentUserEmail()
+        && get(/databases/$(database)/documents/workspaceInvites/$(currentUserEmail())).data.workspaceId == workspaceId;
+    }
+
+    function canAcceptOwnInvite(inviteId) {
+      return signedIn()
+        && currentUserEmail() == inviteId
+        && resource.data.email == inviteId
+        && resource.data.status == 'pending'
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.workspaceId == resource.data.workspaceId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.invitedByUserId == resource.data.invitedByUserId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.acceptedByUserId == request.auth.uid;
+    }
+
+    function canManageAccessRequest(requestedRole, workspaceId) {
+      return belongsToCurrentWorkspace(workspaceId) && canApproveRequestedRole(requestedRole);
+    }
+
+    match /workspaces/{workspaceId} {
+      allow read: if belongsToCurrentWorkspace(workspaceId)
+        || ownedByCurrentUser(workspaceId)
+        || hasPendingInviteForWorkspace(workspaceId);
+
+      allow create: if ownedByCurrentUser(workspaceId)
+        && validWorkspaceDocument(request.resource.data)
+        && request.resource.data.ownerUserId == request.auth.uid;
+
+      allow update: if canManageRoles()
+        && belongsToCurrentWorkspace(workspaceId)
+        && validWorkspaceDocument(request.resource.data)
+        && request.resource.data.ownerUserId == resource.data.ownerUserId;
+    }
+
+    match /workspaceInvites/{inviteId} {
+      allow read: if (canManageRoles() && resource.data.workspaceId == currentWorkspaceId())
+        || (signedIn() && currentUserEmail() == inviteId);
+
+      allow create: if canManageRoles()
+        && validInviteDocument(request.resource.data)
+        && request.resource.data.workspaceId == currentWorkspaceId()
+        && request.resource.data.email == inviteId
+        && request.resource.data.status == 'pending';
+
+      allow update: if (canManageRoles()
+        && validInviteDocument(request.resource.data)
+        && resource.data.workspaceId == currentWorkspaceId()
+        && request.resource.data.workspaceId == resource.data.workspaceId
+        && request.resource.data.email == resource.data.email)
+        || (validInviteDocument(request.resource.data) && canAcceptOwnInvite(inviteId));
+
+      allow delete: if canManageRoles() && resource.data.workspaceId == currentWorkspaceId();
+    }
+
+    match /accessRequests/{userId} {
+      allow read: if ownedByCurrentUser(userId)
+        || canManageAccessRequest(resource.data.requestedRole, resource.data.workspaceId);
+
+      allow create: if ownedByCurrentUser(userId)
+        && validAccessRequestDocument(request.resource.data)
+        && !currentUserProfileExists()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.email == currentUserEmail()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.reviewedByUserId == null
+        && request.resource.data.reviewNote == ''
+        && request.resource.data.reviewedAt == null
+        && exists(/databases/$(database)/documents/workspaces/$(request.resource.data.workspaceId));
+
+      allow update: if validAccessRequestDocument(request.resource.data)
+        && resource.data.status == 'pending'
+        && canManageAccessRequest(resource.data.requestedRole, resource.data.workspaceId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.fullName == resource.data.fullName
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.workspaceId == resource.data.workspaceId
+        && request.resource.data.requestedRole == resource.data.requestedRole
+        && request.resource.data.submittedAt == resource.data.submittedAt
+        && request.resource.data.status in ['approved', 'rejected']
+        && request.resource.data.reviewedByUserId == request.auth.uid;
+    }
+
+    match /userProfiles/{userId} {
+      allow read: if ownedByCurrentUser(userId)
+        || (resource.data.workspaceId is string && belongsToCurrentWorkspace(resource.data.workspaceId));
+
+      allow create: if ownedByCurrentUser(userId)
+        && validUserProfileDocument(request.resource.data)
+        && (
+          canBootstrapOwnWorkspace(request.resource.data)
+          || canJoinWorkspaceFromInvite(request.resource.data)
+          || canCreateProfileFromApprovedRequest(request.resource.data)
+        );
+
+      allow update: if validUserProfileDocument(request.resource.data)
+        && (
+          (ownedByCurrentUser(userId) && selfManagedProfileFieldsAreLocked())
+          || (
+            canManageRoles()
+            && resource.data.workspaceId == currentWorkspaceId()
+            && request.resource.data.workspaceId == resource.data.workspaceId
+            && request.resource.data.userId == resource.data.userId
+            && request.resource.data.createdAt == resource.data.createdAt
+            && !isWorkspaceOwner(resource.data.userId, resource.data.workspaceId)
+          )
+        );
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if belongsToCurrentWorkspace(resource.data.workspaceId);
+
+      allow create: if canManageWorkspace()
+        && validSupplierDocument(request.resource.data)
+        && request.resource.data.workspaceId == currentWorkspaceId();
+
+      allow update: if canManageWorkspace()
+        && belongsToCurrentWorkspace(resource.data.workspaceId)
+        && validSupplierDocument(request.resource.data)
+        && request.resource.data.workspaceId == resource.data.workspaceId;
+
+      allow delete: if canManageWorkspace() && belongsToCurrentWorkspace(resource.data.workspaceId);
     }
 
     match /inventoryItems/{itemId} {
-      allow read: if ownedByCurrentUser(resource.data.userId);
+      allow read: if belongsToCurrentWorkspace(resource.data.workspaceId);
 
-      allow create: if ownedByCurrentUser(request.resource.data.userId)
-        && validInventoryDocument(request.resource.data);
+      allow create: if canManageWorkspace()
+        && validInventoryDocument(request.resource.data)
+        && request.resource.data.workspaceId == currentWorkspaceId();
 
-      allow update: if ownedByCurrentUser(resource.data.userId)
-        && ownedByCurrentUser(request.resource.data.userId)
-        && validInventoryDocument(request.resource.data);
+      allow update: if canManageWorkspace()
+        && belongsToCurrentWorkspace(resource.data.workspaceId)
+        && validInventoryDocument(request.resource.data)
+        && request.resource.data.workspaceId == resource.data.workspaceId;
 
-      allow delete: if ownedByCurrentUser(resource.data.userId);
+      allow delete: if canManageWorkspace() && belongsToCurrentWorkspace(resource.data.workspaceId);
+    }
+
+    match /inventoryTransactions/{transactionId} {
+      allow read: if belongsToCurrentWorkspace(resource.data.workspaceId);
+
+      allow create: if canManageWorkspace()
+        && validTransactionDocument(request.resource.data)
+        && request.resource.data.workspaceId == currentWorkspaceId();
     }
   }
 }

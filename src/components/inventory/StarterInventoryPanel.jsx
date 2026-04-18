@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Boxes, DatabaseZap, Sparkles, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/common/Button';
@@ -33,12 +34,59 @@ function PreviewCard({ item, index }) {
   );
 }
 
-export function StarterInventoryPanel({ onCreate, onSeed, isSeeding }) {
+export function StarterInventoryPanel({ onCreate, onSeed, isSeeding, canManage = true }) {
+  const primaryColumnRef = useRef(null);
+  const [previewMaxHeight, setPreviewMaxHeight] = useState(null);
+
+  useEffect(() => {
+    const updatePreviewMaxHeight = () => {
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setPreviewMaxHeight(null);
+        return;
+      }
+
+      const measuredHeight = primaryColumnRef.current?.clientHeight ?? 0;
+      setPreviewMaxHeight(measuredHeight > 0 ? measuredHeight : null);
+    };
+
+    updatePreviewMaxHeight();
+
+    if (typeof ResizeObserver === 'undefined') {
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', updatePreviewMaxHeight);
+        return () => {
+          window.removeEventListener('resize', updatePreviewMaxHeight);
+        };
+      }
+
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(() => {
+      updatePreviewMaxHeight();
+    });
+
+    if (primaryColumnRef.current) {
+      observer.observe(primaryColumnRef.current);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updatePreviewMaxHeight);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', updatePreviewMaxHeight);
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="surface-panel overflow-hidden">
-        <div className="grid gap-8 px-5 py-5 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-8">
-          <div className="space-y-6">
+        <div className="grid gap-8 px-5 py-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:px-8 lg:py-8">
+          <div ref={primaryColumnRef} className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-600 dark:text-sky-300">
               <Sparkles className="h-4 w-4" />
               Getting started
@@ -48,16 +96,17 @@ export function StarterInventoryPanel({ onCreate, onSeed, isSeeding }) {
                 No inventory records yet.
               </h2>
               <p className="max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
-                Add your first item manually, or load sample inventory to review dashboard metrics, filters, alerts, and recent activity.
+                Add your first item manually, or load demo workspace data to review dashboard metrics, suppliers, purchase orders, alerts,
+                and activity history.
               </p>
             </div>
 
             <div className="rounded-[30px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-violet-400/10 p-5">
               <div className="max-w-lg space-y-3">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Sample dataset</p>
-                <h3 className="font-display text-2xl font-semibold tracking-tight">Load example records to preview the dashboard.</h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Demo dataset</p>
+                <h3 className="font-display text-2xl font-semibold tracking-tight">Load a full workspace preview with realistic records.</h3>
                 <p className="text-sm leading-6 text-slate-500 dark:text-slate-300">
-                  The starter items include a mix of healthy, low-stock, and out-of-stock examples for a realistic first review.
+                  The seeded data includes suppliers, open and cancelled purchase orders, low stock, overdue deliveries, and history entries.
                 </p>
               </div>
             </div>
@@ -65,8 +114,8 @@ export function StarterInventoryPanel({ onCreate, onSeed, isSeeding }) {
             <div className="grid gap-3 sm:grid-cols-3">
               {[
                 { label: 'Sample records', value: `${STARTER_INVENTORY_ITEMS.length}`, icon: DatabaseZap },
-                { label: 'Alert examples', value: '2', icon: Wand2 },
-                { label: 'Dashboard preview', value: 'Ready', icon: Boxes },
+                { label: 'Alert examples', value: '4+', icon: Wand2 },
+                { label: 'Workspace preview', value: 'Ready', icon: Boxes },
               ].map((metric) => {
                 const Icon = metric.icon;
                 return (
@@ -82,18 +131,21 @@ export function StarterInventoryPanel({ onCreate, onSeed, isSeeding }) {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button onClick={onSeed} loading={isSeeding} size="lg">
+              <Button onClick={onSeed} loading={isSeeding} size="lg" disabled={!canManage}>
                 <DatabaseZap className="h-4 w-4" />
-                Load starter inventory
+                Load demo workspace data
               </Button>
-              <Button variant="secondary" onClick={onCreate} size="lg">
+              <Button variant="secondary" onClick={onCreate} size="lg" disabled={!canManage}>
                 Create first item manually
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div
+            className="themed-scrollbar grid gap-4 lg:overflow-y-auto lg:pr-1"
+            style={{ maxHeight: previewMaxHeight ? `${previewMaxHeight}px` : undefined }}
+          >
             {STARTER_INVENTORY_ITEMS.map((item, index) => (
               <PreviewCard key={item.sku} item={item} index={index} />
             ))}

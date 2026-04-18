@@ -7,34 +7,40 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: 245 248 255;
+    --background: 242 246 252;
     --background-panel: 255 255 255;
-    --background-panel-strong: 241 245 249;
+    --background-panel-strong: 245 247 251;
     --foreground: 15 23 42;
-    --muted: 94 109 133;
+    --muted: 87 101 126;
     --border: 15 23 42 / 0.08;
-    --border-strong: 15 23 42 / 0.12;
+    --border-strong: 15 23 42 / 0.14;
     --accent: 14 165 233;
-    --accent-soft: 216 241 255;
+    --accent-soft: 221 241 255;
     --success: 16 185 129;
     --danger: 244 63 94;
     --warning: 249 115 22;
+    --scroll-track: 226 232 240;
+    --scroll-thumb: 100 116 139;
+    --scroll-thumb-hover: 51 65 85;
   }
 
   .dark {
     color-scheme: dark;
-    --background: 3 7 18;
-    --background-panel: 15 23 42;
-    --background-panel-strong: 30 41 59;
-    --foreground: 241 245 249;
-    --muted: 148 163 184;
-    --border: 148 163 184 / 0.14;
-    --border-strong: 226 232 240 / 0.16;
-    --accent: 56 189 248;
-    --accent-soft: 13 26 45;
-    --success: 52 211 153;
+    --background: 7 11 24;
+    --background-panel: 17 23 39;
+    --background-panel-strong: 27 36 58;
+    --foreground: 244 247 252;
+    --muted: 173 184 204;
+    --border: 148 163 184 / 0.18;
+    --border-strong: 226 232 240 / 0.22;
+    --accent: 74 222 248;
+    --accent-soft: 16 30 54;
+    --success: 74 222 128;
     --danger: 251 113 133;
-    --warning: 251 146 60;
+    --warning: 251 191 36;
+    --scroll-track: 30 41 59;
+    --scroll-thumb: 148 163 184;
+    --scroll-thumb-hover: 226 232 240;
   }
 
   * {
@@ -43,14 +49,17 @@
 
   html {
     @apply scroll-smooth;
+    scrollbar-color: rgb(var(--scroll-thumb) / 0.78) rgb(var(--scroll-track) / 0.55);
+    scrollbar-width: thin;
   }
 
   body {
     @apply min-h-screen bg-[rgb(var(--background))] font-sans text-[rgb(var(--foreground))] antialiased;
     background-image:
-      radial-gradient(circle at top left, rgba(var(--accent), 0.14), transparent 20%),
-      radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 18%),
+      radial-gradient(circle at top left, rgba(var(--accent), 0.12), transparent 24%),
+      radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 18%),
       radial-gradient(circle at bottom center, rgba(16, 185, 129, 0.08), transparent 24%);
+    background-attachment: fixed;
   }
 
   button,
@@ -65,23 +74,50 @@
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--scroll-track) / 0.55);
+    border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, rgb(var(--scroll-thumb) / 0.84), rgb(var(--scroll-thumb) / 0.62));
     border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(var(--scroll-thumb-hover) / 0.86), rgb(var(--scroll-thumb-hover) / 0.68));
+    background-clip: padding-box;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply border border-white/10 bg-white/70 backdrop-blur-xl dark:bg-slate-900/60;
+    @apply border border-white/10 backdrop-blur-xl;
+    background: rgba(255, 255, 255, 0.76);
+  }
+
+  .dark .glass-panel {
+    background: rgba(15, 23, 42, 0.74);
   }
 
   .surface-panel {
-    @apply rounded-3xl border border-[color:rgb(var(--border))] bg-[rgb(var(--background-panel))] shadow-panel;
+    @apply rounded-3xl border border-[color:rgb(var(--border))] shadow-panel;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 255, 0.94));
+  }
+
+  .dark .surface-panel {
+    background:
+      linear-gradient(180deg, rgba(17, 23, 39, 0.98), rgba(12, 18, 32, 0.96));
+    box-shadow:
+      0 24px 60px -34px rgba(2, 6, 23, 0.92),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .page-shell {
@@ -103,9 +139,83 @@
     text-wrap: balance;
   }
 
+  .themed-scrollbar {
+    scrollbar-gutter: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .themed-scrollbar::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  .themed-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+    transition: background-color 220ms ease;
+  }
+
+  .themed-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    border: 0 solid transparent;
+    box-shadow: none;
+    opacity: 0;
+    transition:
+      opacity 180ms ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease,
+      background 220ms ease;
+  }
+
+  .themed-scrollbar:hover,
+  .themed-scrollbar:focus-within,
+  .themed-scrollbar:active {
+    scrollbar-color: rgb(var(--scroll-thumb) / 0.84) transparent;
+  }
+
+  .themed-scrollbar:hover::-webkit-scrollbar-thumb,
+  .themed-scrollbar:focus-within::-webkit-scrollbar-thumb,
+  .themed-scrollbar:active::-webkit-scrollbar-thumb {
+    background:
+      linear-gradient(180deg, rgb(var(--scroll-thumb) / 0.9), rgb(var(--scroll-thumb) / 0.66));
+    border: 2px solid rgb(var(--background-panel) / 0.75);
+    box-shadow:
+      0 0 0 1px rgb(var(--border-strong) / 0.28),
+      0 10px 18px -12px rgb(var(--foreground) / 0.55);
+    opacity: 1;
+    animation: scrollbar-reveal 220ms ease;
+  }
+
+  .themed-scrollbar:hover::-webkit-scrollbar-thumb:hover,
+  .themed-scrollbar:focus-within::-webkit-scrollbar-thumb:hover,
+  .themed-scrollbar:active::-webkit-scrollbar-thumb:hover {
+    background:
+      linear-gradient(180deg, rgb(var(--scroll-thumb-hover) / 0.92), rgb(var(--scroll-thumb-hover) / 0.72));
+  }
+
+  @keyframes scrollbar-reveal {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
   .inventory-calendar .fc .fc-toolbar {
     gap: 1rem;
     margin-bottom: 1.25rem;
+    align-items: flex-start;
+  }
+
+  .inventory-calendar .fc .fc-header-toolbar {
+    border: 1px solid rgb(var(--border));
+    border-radius: 1rem;
+    background: rgb(var(--background-panel));
+    padding: 0.9rem;
   }
 
   .inventory-calendar .fc .fc-toolbar-title {
@@ -113,6 +223,12 @@
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: rgb(var(--foreground));
+  }
+
+  .dark .inventory-calendar .fc .fc-header-toolbar {
+    border-color: rgb(var(--border-strong));
+    background: rgba(15, 23, 42, 0.9);
   }
 
   .inventory-calendar .fc .fc-button {
@@ -142,6 +258,35 @@
     border-color: rgb(var(--border));
   }
 
+  .inventory-calendar .fc .fc-daygrid .fc-col-header-cell {
+    background: rgb(var(--background-panel));
+  }
+
+  .inventory-calendar .fc .fc-daygrid .fc-col-header-cell-cushion {
+    color: rgb(var(--foreground));
+  }
+
+  .dark .inventory-calendar .fc .fc-daygrid .fc-col-header-cell {
+    background: rgba(15, 23, 42, 0.9);
+  }
+
+  .dark .inventory-calendar .fc .fc-daygrid .fc-col-header-cell-cushion {
+    color: rgb(var(--foreground));
+  }
+
+  .dark .inventory-calendar .fc .fc-list-day-cushion {
+    color: rgb(var(--foreground));
+  }
+
+  .dark .inventory-calendar .fc .fc-list-day-cushion.fc-cell-shaded {
+    background: rgba(15, 23, 42, 0.92);
+    color: rgb(var(--foreground));
+  }
+
+  .dark .inventory-calendar .fc .fc-list-day-cushion.fc-cell-shaded a {
+    color: rgb(var(--foreground));
+  }
+
   .inventory-calendar .fc .fc-daygrid-day.fc-day-today,
   .inventory-calendar .fc .fc-list-day-cushion {
     background: rgba(var(--accent), 0.08);
@@ -155,5 +300,23 @@
 
   .inventory-calendar .fc .fc-list-event:hover td {
     background: rgba(var(--accent), 0.08);
+  }
+
+  @media (max-width: 768px) {
+    .inventory-calendar .fc .fc-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .inventory-calendar .fc .fc-toolbar-chunk {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .inventory-calendar .fc .fc-toolbar-title {
+      font-size: 1.25rem;
+    }
   }
 }

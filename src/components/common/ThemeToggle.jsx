@@ -12,7 +12,12 @@ export function ThemeToggle({ compact = false }) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className={cn('inline-flex items-center rounded-2xl border border-[color:rgb(var(--border))] bg-white/75 p-1 dark:bg-slate-900/70', compact && 'w-full justify-between')}>
+    <div
+      className={cn(
+        'inline-flex items-center rounded-2xl border border-[color:rgb(var(--border))] bg-white/80 p-1 shadow-sm dark:bg-slate-900/85',
+        compact && 'w-full justify-between',
+      )}
+    >
       {options.map((option) => {
         const Icon = option.icon;
 
@@ -23,8 +28,8 @@ export function ThemeToggle({ compact = false }) {
             className={cn(
               'ring-focus inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium transition',
               theme === option.value
-                ? 'bg-slate-950 text-white dark:bg-sky-400 dark:text-slate-950'
-                : 'text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white',
+                ? 'bg-slate-950 text-white dark:bg-sky-300 dark:text-slate-950'
+                : 'text-slate-500 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/80 dark:hover:text-white',
             )}
             onClick={() => setTheme(option.value)}
             aria-label={option.label}
@@ -38,4 +43,3 @@ export function ThemeToggle({ compact = false }) {
     </div>
   );
 }
-

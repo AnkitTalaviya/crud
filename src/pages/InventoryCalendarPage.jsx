@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { SkeletonBlock } from '@/components/common/SkeletonBlock';
 import { InventoryDetailModal } from '@/components/inventory/InventoryDetailModal';
+import { useAuth } from '@/context/AuthContext';
 import { useInventoryItems } from '@/hooks/useInventoryItems';
 import { formatDateOnly } from '@/utils/formatters';
 import { buildInventoryCalendarEvents } from '@/utils/inventory';
@@ -71,6 +72,7 @@ function renderEventContent(eventInfo) {
 
 export function InventoryCalendarPage() {
   const navigate = useNavigate();
+  const { canManageWorkspace } = useAuth();
   const { items, isLoading, isError, refetch } = useInventoryItems();
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -114,8 +116,8 @@ export function InventoryCalendarPage() {
         icon={CalendarDays}
         title="No inventory records yet"
         description="Create inventory items first, then add order and receipt dates to populate the calendar."
-        actionLabel="Add inventory"
-        onAction={() => navigate('/app/inventory?new=true')}
+        actionLabel={canManageWorkspace ? 'Add inventory' : undefined}
+        onAction={canManageWorkspace ? () => navigate('/app/inventory?new=true') : undefined}
       />
     );
   }
@@ -126,8 +128,8 @@ export function InventoryCalendarPage() {
         icon={CalendarDays}
         title="No schedule dates yet"
         description="Add ordered, expected, or received dates to your inventory records to display them on the calendar."
-        actionLabel="Update inventory"
-        onAction={() => navigate('/app/inventory')}
+        actionLabel={canManageWorkspace ? 'Update inventory' : undefined}
+        onAction={canManageWorkspace ? () => navigate('/app/inventory') : undefined}
       />
     );
   }
@@ -168,7 +170,7 @@ export function InventoryCalendarPage() {
                 Use the calendar to track when items were ordered, when they are expected, and when they were received.
               </p>
             </div>
-            <Button onClick={() => navigate('/app/inventory?new=true')}>Add inventory</Button>
+            {canManageWorkspace && <Button onClick={() => navigate('/app/inventory?new=true')}>Add inventory</Button>}
           </div>
 
           <div className="inventory-calendar mt-5">
@@ -277,7 +279,9 @@ export function InventoryCalendarPage() {
         open={Boolean(selectedItem)}
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
+        canManage={canManageWorkspace}
         onEdit={(item) => navigate(`/app/inventory?edit=${item.id}`)}
+        onTransaction={(mode, item) => navigate(`/app/inventory?focus=${item.id}`)}
       />
     </div>
   );

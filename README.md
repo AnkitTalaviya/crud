@@ -1,16 +1,23 @@
 # StockPilot
 
-StockPilot is an inventory management app built with React, Vite, Tailwind CSS, Firebase Authentication, and Cloud Firestore. It provides authenticated CRUD workflows, responsive dashboards, theme persistence, and background scene rendering.
+StockPilot is an inventory operations app built with React, Vite, Tailwind CSS, Firebase Authentication, and Cloud Firestore. It covers inventory records, purchase-order tracking, supplier management, audit history, low-stock alerts, CSV import/export, and role-aware access controls.
 
 ## Project Overview
 
 StockPilot helps individual operators and small teams manage stock with:
 
 - secure sign up, login, logout, and persistent sessions
-- a protected dashboard with summary cards and attention queues
-- full CRUD for inventory items
+- a protected dashboard with summary cards, attention queues, reorder suggestions, and recent stock movement activity
+- full CRUD for inventory items with purchase-order context
 - search, filtering, sorting, and detail views
-- order, expected receipt, and received date tracking
+- ordered, expected receipt, and received date tracking
+- purchase-order workflow with PO numbers, quantity on order, and ordered / partial / received / cancelled states
+- supplier management with contacts, lead times, and linked inventory records
+- stock movement logging for receive, issue, and adjust actions
+- audit history for create, edit, delete, import, and stock transactions
+- low-stock, overdue-delivery, and upcoming-receipt notifications
+- CSV import and export plus JSON export
+- role-aware admin / manager / viewer access
 - light and dark themes with persisted preference
 - responsive layouts for mobile, tablet, and desktop
 - motion and background rendering with Framer Motion and React Three Fiber
@@ -76,11 +83,17 @@ src/
 - Protected app routes
 - Inventory dashboard analytics
 - Inventory create, edit, delete, and detail flows
+- Purchase order workflow with PO numbers, quantity on order, and order statuses
+- Receive, issue, and adjust stock transaction flows
+- Supplier directory with lead times and contacts
+- Audit history for inventory activity
+- In-app operational notifications
 - Delivery calendar for ordered, expected, and received inventory milestones
+- CSV and JSON export plus CSV import
 - Delete confirmation modal
 - Toast feedback
 - Empty, loading, and error states
-- JSON export
+- Role-aware admin, manager, and viewer access
 - Theme toggle with `localStorage` persistence and system fallback
 - Background scene effects for auth and app screens
 
@@ -97,7 +110,11 @@ Each inventory item includes:
 - `unitPrice`
 - `reorderLevel`
 - `location`
+- `supplierId`
 - `supplier`
+- `purchaseOrderNumber`
+- `quantityOnOrder`
+- `orderStatus`
 - `tags`
 - `status`
 - `orderedOn`
@@ -113,11 +130,20 @@ Each inventory item includes:
 - `low_stock`
 - `out_of_stock`
 
+Additional collections:
+
+- `suppliers`
+- `inventoryTransactions`
+- `userProfiles`
+
 ## How Auth And Database Work
 
 - Firebase Authentication handles email/password signup, login, logout, and session persistence.
 - Firestore stores inventory items in the `inventoryItems` collection.
-- Every item is written with the authenticated user's `uid` as `userId`.
+- Suppliers are stored in `suppliers`.
+- Audit history is stored in `inventoryTransactions`.
+- Role and reminder preferences are stored in `userProfiles`.
+- Every document is written with the authenticated user's `uid` as `userId`.
 - The UI only queries records for the current user.
 - Firestore security rules in [firestore.rules](./firestore.rules) enforce user-specific access at the database level.
 

@@ -17,7 +17,7 @@ function FieldWrapper({ label, description, error, children }) {
 }
 
 const baseFieldClassName =
-  'ring-focus w-full rounded-2xl border border-[color:rgb(var(--border-strong))] bg-white/70 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 dark:bg-slate-950/50 dark:text-slate-100 dark:placeholder:text-slate-500';
+  'ring-focus w-full rounded-2xl border border-[color:rgb(var(--border-strong))] bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm dark:bg-slate-950/85 dark:text-slate-50 dark:placeholder:text-slate-400';
 
 export const TextInput = forwardRef(function TextInput({ label, description, error, className, ...props }, ref) {
   return (
@@ -47,4 +47,3 @@ export const SelectField = forwardRef(function SelectField(
     </FieldWrapper>
   );
 });
-

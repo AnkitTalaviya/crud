@@ -1,10 +1,22 @@
 import { z } from 'zod';
+import { canSelfBootstrapWorkspace } from '@/utils/access';
 
 const inventoryDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 const optionalInventoryDateField = z
   .string()
   .optional()
   .transform((value) => value?.trim() ?? '');
+
+const optionalTrimmedString = z
+  .string()
+  .optional()
+  .transform((value) => value?.trim() ?? '');
+
+const optionalEmailField = z
+  .string()
+  .optional()
+  .transform((value) => value?.trim() ?? '')
+  .refine((value) => !value || z.string().email().safeParse(value).success, 'Enter a valid email address');
 
 export const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -13,6 +25,21 @@ export const loginSchema = z.object({
 
 export const signupSchema = loginSchema.extend({
   fullName: z.string().min(2, 'Tell us what to call you'),
+  requestedRole: z.enum(['admin', 'manager', 'viewer']),
+  workspaceId: optionalTrimmedString,
+}).superRefine((values, context) => {
+  if (!canSelfBootstrapWorkspace(values.requestedRole, values.workspaceId) && !values.workspaceId) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Enter a workspace ID when joining an existing team.',
+      path: ['workspaceId'],
+    });
+  }
+});
+
+export const workspaceInviteSchema = z.object({
+  email: z.string().email('Enter a valid email address'),
+  role: z.enum(['admin', 'manager', 'viewer']),
 });
 
 export const inventorySchema = z
@@ -29,7 +56,11 @@ export const inventorySchema = z
     unitPrice: z.coerce.number().min(0, 'Unit price cannot be negative'),
     reorderLevel: z.coerce.number().min(0, 'Reorder level cannot be negative'),
     location: z.string().min(2, 'Add where this stock lives'),
-    supplier: z.string().min(2, 'Add a supplier or source'),
+    supplierId: optionalTrimmedString,
+    supplier: z.string().min(2, 'Select a supplier or add a clear supplier name'),
+    purchaseOrderNumber: optionalTrimmedString,
+    quantityOnOrder: z.coerce.number().min(0, 'Quantity on order cannot be negative'),
+    orderStatus: z.enum(['none', 'ordered', 'partial', 'received', 'cancelled']),
     tags: z.string().optional(),
     orderedOn: optionalInventoryDateField,
     expectedOn: optionalInventoryDateField,
@@ -65,6 +96,69 @@ export const inventorySchema = z
         code: z.ZodIssueCode.custom,
         message: 'Received date cannot be earlier than the order date',
         path: ['receivedOn'],
+      });
+    }
+
+    if (values.quantityOnOrder > 0 && values.orderStatus === 'none') {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Choose an order status when quantity on order is greater than zero',
+        path: ['orderStatus'],
+      });
+    }
+
+    if (values.orderStatus === 'received' && values.quantityOnOrder > 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Received orders should not have quantity remaining on order',
+        path: ['quantityOnOrder'],
+      });
+    }
+
+    if (values.orderStatus === 'cancelled' && values.quantityOnOrder > 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Cancelled orders should not keep quantity on order',
+        path: ['quantityOnOrder'],
+      });
+    }
+
+    if ((values.orderStatus === 'ordered' || values.orderStatus === 'partial') && !values.purchaseOrderNumber) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Add a PO number for open orders',
+        path: ['purchaseOrderNumber'],
+      });
+    }
+  });
+
+export const supplierSchema = z.object({
+  name: z.string().min(2, 'Supplier name should be at least 2 characters'),
+  contactName: optionalTrimmedString,
+  email: optionalEmailField,
+  phone: optionalTrimmedString,
+  leadTimeDays: z.coerce.number().min(0, 'Lead time cannot be negative'),
+  address: optionalTrimmedString,
+  notes: z
+    .string()
+    .optional()
+    .transform((value) => value?.trim() ?? '')
+    .refine((value) => value.length <= 280, 'Keep notes concise'),
+});
+
+export const inventoryMovementSchema = z
+  .object({
+    mode: z.enum(['receive', 'issue', 'adjust']),
+    quantity: z.coerce.number().min(0, 'Quantity cannot be negative'),
+    note: optionalTrimmedString,
+    effectiveOn: optionalInventoryDateField,
+  })
+  .superRefine((values, context) => {
+    if ((values.mode === 'receive' || values.mode === 'issue') && values.quantity <= 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Enter a quantity greater than zero',
+        path: ['quantity'],
       });
     }
   });

@@ -6,25 +6,42 @@ import { LazyShowcaseScene } from '@/components/common/LazyShowcaseScene';
 import { LogoMark } from '@/components/common/LogoMark';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { UserMenu } from '@/components/common/UserMenu';
+import { useAuth } from '@/context/AuthContext';
 import { NAV_LINKS } from '@/utils/constants';
 import { cn } from '@/utils/cn';
 
 const pageMeta = {
   '/app/dashboard': {
     title: 'Operations dashboard',
-    description: 'Review stock health, recent activity, and inventory value in one view.',
+    description: 'Review stock health, supplier coverage, inbound orders, and inventory value in one view.',
   },
   '/app/inventory': {
     title: 'Inventory records',
-    description: 'Create, update, and review each SKU with search and filter controls.',
+    description: 'Create, update, receive, issue, and review each SKU with supplier and PO context.',
   },
   '/app/calendar': {
     title: 'Inventory calendar',
-    description: 'Track order dates, expected receipts, and received inventory on one schedule.',
+    description: 'Track order dates, expected receipts, and completed deliveries on one schedule.',
+  },
+  '/app/suppliers': {
+    title: 'Supplier directory',
+    description: 'Manage supplier contacts, lead times, and linked inventory relationships.',
+  },
+  '/app/history': {
+    title: 'Activity history',
+    description: 'Audit create, update, receive, issue, adjust, delete, and import events across inventory.',
+  },
+  '/app/notifications': {
+    title: 'Notifications',
+    description: 'Review low-stock, overdue delivery, and upcoming receipt reminders in one list.',
+  },
+  '/app/team': {
+    title: 'Team access',
+    description: 'Manage workspace members, invitations, and role-based access in one secure view.',
   },
   '/app/settings': {
     title: 'Account settings',
-    description: 'Review account details, theme preferences, and backend status.',
+    description: 'Manage reminder preferences, appearance, and account context for this workspace.',
   },
 };
 
@@ -32,6 +49,7 @@ export function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { canManageWorkspace, role } = useAuth();
 
   const currentMeta = useMemo(() => {
     return pageMeta[location.pathname] ?? pageMeta['/app/dashboard'];
@@ -46,7 +64,7 @@ export function DashboardLayout() {
       <div className="relative z-10 mx-auto flex min-h-screen max-w-[1600px]">
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-[color:rgb(var(--border))] bg-[rgb(var(--background-panel))]/95 px-5 py-6 shadow-panel backdrop-blur-xl transition-transform duration-200 lg:left-[max(0px,calc((100vw-1600px)/2))] lg:translate-x-0 lg:shadow-none',
+            'themed-scrollbar fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-[color:rgb(var(--border))] bg-[rgb(var(--background-panel))]/95 px-5 py-6 shadow-panel backdrop-blur-xl transition-transform duration-200 lg:left-[max(0px,calc((100vw-1600px)/2))] lg:translate-x-0 lg:shadow-none',
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:pointer-events-auto',
           )}
         >
@@ -64,7 +82,7 @@ export function DashboardLayout() {
           </div>
 
           <div className="mt-8 space-y-2">
-            {NAV_LINKS.map((link) => {
+            {NAV_LINKS.filter((link) => !link.roles?.length || link.roles.includes(role)).map((link) => {
               const Icon = link.icon;
               return (
                 <NavLink
@@ -87,18 +105,19 @@ export function DashboardLayout() {
             })}
           </div>
 
-          <div className="mt-8 rounded-[28px] bg-gradient-to-br from-sky-500 to-cyan-400 p-5 text-slate-950 shadow-soft">
-            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-black/10">
+          <div className="mt-6 rounded-[28px] bg-gradient-to-br from-sky-500 to-cyan-400 p-4 text-slate-950 shadow-soft">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-black/10">
               <Sparkles className="h-5 w-5" />
             </div>
-            <h3 className="mt-4 font-display text-xl font-semibold tracking-tight">Add inventory quickly</h3>
+            <h3 className="mt-3 font-display text-lg font-semibold tracking-tight">Keep inventory current</h3>
             <p className="mt-2 text-sm leading-6 text-slate-900/75">
-              Create a new record and keep stock levels current from the main navigation.
+              Create new SKUs, add PO details, and record stock movements without leaving navigation.
             </p>
             <Button
               variant="secondary"
-              className="mt-5 w-full border-black/10 bg-white/78 text-slate-950 hover:bg-white"
+              className="mt-4 w-full border-black/10 bg-white/82 text-slate-950 hover:bg-white"
               onClick={() => navigate('/app/inventory?new=true')}
+              disabled={!canManageWorkspace}
             >
               <Plus className="h-4 w-4" />
               New inventory item
@@ -145,7 +164,7 @@ export function DashboardLayout() {
 
           <div aria-hidden="true" className="h-[88px] shrink-0 sm:h-[104px]" />
 
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          <main className="themed-scrollbar flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-5 lg:px-5">
             <Outlet />
           </main>
         </div>

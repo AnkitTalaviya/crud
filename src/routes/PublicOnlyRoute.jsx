@@ -3,9 +3,9 @@ import { useAuth } from '@/context/AuthContext';
 import { LoaderScreen } from '@/components/common/LoaderScreen';
 
 export function PublicOnlyRoute({ children }) {
-  const { authReady, isAuthenticated } = useAuth();
+  const { sessionReady, isAuthenticated } = useAuth();
 
-  if (!authReady) {
+  if (!sessionReady) {
     return <LoaderScreen label="Preparing the app..." />;
   }
 
@@ -15,4 +15,3 @@ export function PublicOnlyRoute({ children }) {
 
   return children;
 }
-

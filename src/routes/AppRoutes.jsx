@@ -11,6 +11,10 @@ const SignupPage = lazy(() => import('@/pages/SignupPage').then((module) => ({ d
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((module) => ({ default: module.DashboardPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((module) => ({ default: module.InventoryPage })));
 const InventoryCalendarPage = lazy(() => import('@/pages/InventoryCalendarPage').then((module) => ({ default: module.InventoryCalendarPage })));
+const SuppliersPage = lazy(() => import('@/pages/SuppliersPage').then((module) => ({ default: module.SuppliersPage })));
+const HistoryPage = lazy(() => import('@/pages/HistoryPage').then((module) => ({ default: module.HistoryPage })));
+const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((module) => ({ default: module.NotificationsPage })));
+const TeamPage = lazy(() => import('@/pages/TeamPage').then((module) => ({ default: module.TeamPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
 
@@ -47,6 +51,17 @@ export function AppRoutes() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="inventory" element={<InventoryPage />} />
           <Route path="calendar" element={<InventoryCalendarPage />} />
+          <Route path="suppliers" element={<SuppliersPage />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route
+            path="team"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <TeamPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

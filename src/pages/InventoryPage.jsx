@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -7,26 +7,20 @@ import { SkeletonBlock } from '@/components/common/SkeletonBlock';
 import { InventoryCard } from '@/components/inventory/InventoryCard';
 import { InventoryDetailModal } from '@/components/inventory/InventoryDetailModal';
 import { InventoryFormModal } from '@/components/inventory/InventoryFormModal';
+import { InventoryTransactionModal } from '@/components/inventory/InventoryTransactionModal';
 import { StarterInventoryPanel } from '@/components/inventory/StarterInventoryPanel';
 import { InventoryTable } from '@/components/inventory/InventoryTable';
 import { InventoryToolbar } from '@/components/inventory/InventoryToolbar';
+import { useAuth } from '@/context/AuthContext';
 import { useInventoryFilters } from '@/hooks/useInventoryFilters';
 import { useInventoryItems } from '@/hooks/useInventoryItems';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import { downloadInventoryAsCsv, downloadInventoryAsJson, parseInventoryCsvFile } from '@/utils/csv';
 import { formatDateTime } from '@/utils/formatters';
-
-function downloadInventory(items) {
-  const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = `stockpilot-inventory-${new Date().toISOString().slice(0, 10)}.json`;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
 
 function LoadingState() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <SkeletonBlock className="h-[88px] w-full rounded-[30px]" />
       <SkeletonBlock className="hidden h-[400px] w-full rounded-[30px] lg:block" />
       <div className="grid gap-4 lg:hidden">
@@ -40,26 +34,46 @@ function LoadingState() {
 
 export function InventoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const fileInputRef = useRef(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const { items, isLoading, isError, refetch, createItem, updateItem, seedItems, deleteItem, isCreating, isUpdating, isSeeding, isDeleting } = useInventoryItems();
+  const [movementTarget, setMovementTarget] = useState(null);
+  const { canManageWorkspace } = useAuth();
+  const {
+    items,
+    isLoading,
+    isError,
+    refetch,
+    createItem,
+    updateItem,
+    seedItems,
+    deleteItem,
+    importItems,
+    applyTransaction,
+    isCreating,
+    isUpdating,
+    isSeeding,
+    isDeleting,
+    isApplyingTransaction,
+  } = useInventoryItems();
+  const { suppliers } = useSuppliers();
   const { filters, filteredItems, categories, updateFilter } = useInventoryFilters(items);
 
   const focusedItem = useMemo(() => items.find((item) => item.id === searchParams.get('focus')), [items, searchParams]);
 
   useEffect(() => {
-    if (searchParams.get('new') === 'true') {
+    if (searchParams.get('new') === 'true' && canManageWorkspace) {
       setEditingItem(null);
       setIsFormOpen(true);
     }
-  }, [searchParams]);
+  }, [canManageWorkspace, searchParams]);
 
   useEffect(() => {
     const editId = searchParams.get('edit');
 
-    if (!editId) {
+    if (!editId || !canManageWorkspace) {
       return;
     }
 
@@ -70,13 +84,22 @@ export function InventoryPage() {
       setEditingItem(matchedItem);
       setIsFormOpen(true);
     }
-  }, [items, searchParams]);
+  }, [canManageWorkspace, items, searchParams]);
 
   useEffect(() => {
     if (focusedItem) {
       setSelectedItem(focusedItem);
     }
   }, [focusedItem]);
+
+  useEffect(() => {
+    if (selectedItem) {
+      const refreshedSelectedItem = items.find((item) => item.id === selectedItem.id);
+      if (refreshedSelectedItem) {
+        setSelectedItem(refreshedSelectedItem);
+      }
+    }
+  }, [items, selectedItem]);
 
   const closeForm = () => {
     setIsFormOpen(false);
@@ -90,11 +113,21 @@ export function InventoryPage() {
   };
 
   const openCreateModal = () => {
+    if (!canManageWorkspace) {
+      toast.error('Your current role cannot create inventory.');
+      return;
+    }
+
     setEditingItem(null);
     setIsFormOpen(true);
   };
 
   const openEditModal = (item) => {
+    if (!canManageWorkspace) {
+      toast.error('Your current role cannot edit inventory.');
+      return;
+    }
+
     setSelectedItem(null);
     setEditingItem(item);
     setIsFormOpen(true);
@@ -130,17 +163,53 @@ export function InventoryPage() {
     }
   };
 
-  const handleExport = () => {
-    downloadInventory(items);
+  const handleExportJson = () => {
+    downloadInventoryAsJson(items);
     toast.success('Inventory exported as JSON');
+  };
+
+  const handleExportCsv = () => {
+    downloadInventoryAsCsv(items);
+    toast.success('Inventory exported as CSV');
+  };
+
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const { validRows, errors } = await parseInventoryCsvFile(file);
+
+      if (!validRows.length) {
+        throw new Error(errors[0] || 'No valid CSV rows were found.');
+      }
+
+      await importItems(validRows);
+      toast.success(`Imported ${validRows.length} inventory rows`);
+
+      if (errors.length) {
+        toast.error(errors[0]);
+      }
+    } catch (error) {
+      toast.error(error.message || 'Could not import the CSV file');
+    } finally {
+      event.target.value = '';
+    }
   };
 
   const handleSeed = async () => {
     try {
-      await seedItems();
-      toast.success('Starter inventory loaded');
+      const result = await seedItems();
+      toast.success(
+        result?.itemsAdded || result?.suppliersAdded || result?.transactionsAdded
+          ? `Demo data loaded: ${result.itemsAdded} items, ${result.suppliersAdded} suppliers, ${result.transactionsAdded} history entries`
+          : 'Demo data is already loaded',
+      );
     } catch (error) {
-      toast.error(error.message || 'Could not load starter inventory');
+      toast.error(error.message || 'Could not load demo workspace data');
     }
   };
 
@@ -153,6 +222,20 @@ export function InventoryPage() {
     }
   };
 
+  const handleSaveMovement = async (values) => {
+    if (!movementTarget) {
+      return;
+    }
+
+    try {
+      await applyTransaction({ itemId: movementTarget.item.id, values });
+      toast.success('Stock movement recorded');
+      setMovementTarget(null);
+    } catch (error) {
+      toast.error(error.message || 'Could not record the stock movement');
+    }
+  };
+
   if (isLoading) {
     return <LoadingState />;
   }
@@ -161,7 +244,7 @@ export function InventoryPage() {
     return (
       <ErrorState
         title="Could not load inventory"
-        description="The Firestore query failed. Confirm your Firebase config and security rules, then retry."
+        description="The inventory workspace could not be loaded right now. Please retry."
         onRetry={refetch}
       />
     );
@@ -169,34 +252,39 @@ export function InventoryPage() {
 
   return (
     <div className="space-y-5">
+      <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImport} />
+
       <InventoryToolbar
         filters={filters}
         categories={categories}
         updateFilter={updateFilter}
+        canManage={canManageWorkspace}
         onCreate={openCreateModal}
-        onExport={handleExport}
+        onImport={() => fileInputRef.current?.click()}
+        onExportCsv={handleExportCsv}
+        onExportJson={handleExportJson}
       />
 
       {!items.length ? (
-        <StarterInventoryPanel onCreate={openCreateModal} onSeed={handleSeed} isSeeding={isSeeding} />
+        <StarterInventoryPanel onCreate={openCreateModal} onSeed={handleSeed} isSeeding={isSeeding} canManage={canManageWorkspace} />
       ) : filteredItems.length ? (
         <>
-          <div className="rounded-[30px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-emerald-400/10 p-5">
-            <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-              <div className="space-y-3">
+          <div className="rounded-[30px] border border-[color:rgb(var(--border))] bg-gradient-to-br from-sky-500/10 via-cyan-400/8 to-emerald-400/10 p-4 sm:p-5">
+            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+              <div className="space-y-2.5">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Inventory records</p>
-                <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Browse, update, and search stock records.
+                <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Track stock, open purchase orders, and receiving progress.
                 </h2>
                 <p className="max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-300">
-                  Use search and filters to review inventory by category, status, and recent updates.
+                  Search by SKU, supplier, PO number, or category to review inventory and update operational records quickly.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
                   { label: 'Total records', value: `${items.length}` },
                   { label: 'Filtered results', value: `${filteredItems.length}` },
-                  { label: 'Categories', value: `${categories.length}` },
+                  { label: 'Linked suppliers', value: `${suppliers.length}` },
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-[24px] bg-white/70 p-4 dark:bg-slate-950/50">
                     <p className="text-sm text-slate-500 dark:text-slate-400">{stat.label}</p>
@@ -212,6 +300,7 @@ export function InventoryPage() {
               <InventoryCard
                 key={item.id}
                 item={item}
+                canManage={canManageWorkspace}
                 onView={setSelectedItem}
                 onEdit={openEditModal}
                 onDelete={setDeleteTarget}
@@ -219,7 +308,13 @@ export function InventoryPage() {
             ))}
           </div>
 
-          <InventoryTable items={filteredItems} onView={setSelectedItem} onEdit={openEditModal} onDelete={setDeleteTarget} />
+          <InventoryTable
+            items={filteredItems}
+            canManage={canManageWorkspace}
+            onView={setSelectedItem}
+            onEdit={openEditModal}
+            onDelete={setDeleteTarget}
+          />
         </>
       ) : (
         <div className="surface-panel p-8 text-center">
@@ -233,12 +328,29 @@ export function InventoryPage() {
       <InventoryFormModal
         open={isFormOpen}
         item={editingItem}
+        suppliers={suppliers}
         isSaving={isCreating || isUpdating}
         onClose={closeForm}
         onSubmit={handleSaveItem}
       />
 
-      <InventoryDetailModal open={Boolean(selectedItem)} item={selectedItem} onClose={closeDetail} onEdit={openEditModal} />
+      <InventoryDetailModal
+        open={Boolean(selectedItem)}
+        item={selectedItem}
+        canManage={canManageWorkspace}
+        onClose={closeDetail}
+        onEdit={openEditModal}
+        onTransaction={(mode, item) => setMovementTarget({ mode, item })}
+      />
+
+      <InventoryTransactionModal
+        open={Boolean(movementTarget)}
+        item={movementTarget?.item}
+        mode={movementTarget?.mode}
+        isSaving={isApplyingTransaction}
+        onClose={() => setMovementTarget(null)}
+        onSubmit={handleSaveMovement}
+      />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
